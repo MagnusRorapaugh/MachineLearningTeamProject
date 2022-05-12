@@ -14,7 +14,7 @@ def labelMaker(img1_X, img1_Y, img2_X, img2_Y):
             #img2 is NORTH of img1
             return [1, 0, 0, 0, 0]
         elif (img1_Y == (img2_Y - 1)):
-            #img2 is SOUTH if img1
+            #img2 is SOUTH of img1
             return [0, 1, 0, 0, 0]
         elif (img1_Y == img2_Y):
             #ERROR these are equal coordinates
