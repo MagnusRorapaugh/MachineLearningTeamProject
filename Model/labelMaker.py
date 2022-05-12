@@ -1,5 +1,5 @@
 
-#This function takes as input the coordinates of the two images. 
+#This function takes as input the coordinates of two images. 
 #It may be decided that we want to extract the coordinates from 
 #the filenames in this function instead.
 #The function outputs one-hot encodings which are the labels for training.
