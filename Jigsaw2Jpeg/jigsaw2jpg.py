@@ -2,6 +2,7 @@
 from matplotlib.image import imread
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import ndimage
 
 '''
 This function simply loads in and returns an image given a path
@@ -13,33 +14,38 @@ Takes in an image with the top left pixel as "background" then cuts up the image
 into smaller pieces that don't contain that background in an array
 '''
 def cut_image(image):
-	
+
 	# 1. get mask
-	
-	plt.imshow(image)
-	plt.show()
-	
+
+	# plt.imshow(image)
+	# plt.show()
+
+	image = np.copy(image) # prevents read-only error
 	color = image[0].mean(axis=0) # gets avg color of top row
-	mask = loose_mask(image, color, 50)
+	mask = loose_mask(image, color, 55)
 	image[mask] = [255,150,255] # replace background
-	
+
 	plt.imshow(image)
 	plt.show()
-	
+
+	blobs, number_of_blobs = ndimage.label(~mask)
+	plt.imshow(blobs)
+	plt.show()
+
 	# TODO
-	# 2. get continuous pieces 
+	# 2. get continuous pieces
 	pieces = []
 	while ~mask.any():
 		break
 		# 2a. find a true piece
 		# 2b. find size of minimum rectangle to contain continuous piece
 		# 2c. collect continuous piece
-		
+
 	# TODO
 	# 3. normalize size of all pieces
 	normalize(pieces)
 	return pieces
-	
+
 '''
 Returns a true false np array with true where the input image is not the same as color
 '''
@@ -60,7 +66,7 @@ def normalize(pieces):
 
 
 
-im = get_image("puzzle2.jpg")
+im = get_image("puzzle3.jpg")
 cut_image(im)
 
 
@@ -68,11 +74,12 @@ cut_image(im)
 DEBUGGING CODE:
 fake_image = np.array(
 	[
-		[[1,2,3], [4,5,3], [1,2,3]],
-		[[10,20,30], [1,2,3], [10,20,30]],
-		[[10,20,30], [10,-20,30], [1,3,3]]
+		[[1,0,0], [4,0,3], [0,0,3]],
+		[[100,200,30], [1,2,3], [100,200,30]],
+		[[100,200,30], [130,200,30], [1,3,3]]
 	]
 )
 
-plt.loose_mask(fake_image, [1,2,3])
+cut_image(fake_image)
+# plt.loose_mask(fake_image, [1,2,3])
 '''
