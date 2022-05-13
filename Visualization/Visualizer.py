@@ -6,12 +6,11 @@ import time
 
 
 class Visualizer:
-    def __init__(self, data):
-        self.data = data
-        self.piece_shape = data.shape[2]
-        self.num_pieces = (data.shape[0] + 1) / 2
-        self.canvas = Image.new('RGB', (
-            int(self.piece_shape * self.data.shape[0]), int(self.piece_shape * self.data.shape[1])))
+    def __init__(self):
+        self.data = None
+        self.piece_shape = None
+        self.num_pieces = None
+        self.canvas = None
         self.render_dict = None
         self.to_render = Queue()
 
@@ -31,7 +30,6 @@ class Visualizer:
             piece_to_render = Image.fromarray((piece_to_render * 255).astype(np.uint8))
             print(pos)
             self.canvas.paste(piece_to_render, (int(pos[1] * self.piece_shape), int(pos[0] * self.piece_shape)))
-            # self.canvas.show()
             temp = self.canvas.copy()
             self.to_render.put(temp)
 
@@ -52,6 +50,8 @@ class Visualizer:
         self.data = data
         self.piece_shape = data.shape[2]
         self.num_pieces = (data.shape[0] + 1) / 2
+        self.canvas = Image.new('RGB', (
+            int(self.piece_shape * self.data.shape[0]), int(self.piece_shape * self.data.shape[1])))
         self.extract_pieces()
         self.gen_photo()
         self.render()
@@ -68,6 +68,11 @@ if __name__ == '__main__':
     mock_data2[2, 2] = Image.open('./img2.png')
     mock_data2[1, 0] = Image.open('./img3.png')
     mock_data2[0, 0] = Image.open('./img4.png')
-    vis = Visualizer(mock_data)
+    vis = Visualizer()
     vis.update(mock_data)
     vis.update(mock_data2)
+    for i in range(10):
+        if i % 2 ==0:
+            vis.update(mock_data)
+        else:
+            vis.update(mock_data2)
