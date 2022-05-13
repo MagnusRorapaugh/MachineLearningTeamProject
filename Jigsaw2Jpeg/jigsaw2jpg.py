@@ -3,12 +3,14 @@ from matplotlib.image import imread
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import ndimage
+from piece import *
 
 '''
 This function simply loads in and returns an image given a path
 '''
 def get_image(path):
 	return imread(path)
+
 '''
 Takes in an image with the top left pixel as "background" then cuts up the image
 into smaller pieces that don't contain that background in an array
@@ -16,34 +18,35 @@ into smaller pieces that don't contain that background in an array
 def cut_image(image):
 
 	# 1. get mask
-
-	# plt.imshow(image)
-	# plt.show()
-
 	image = np.copy(image) # prevents read-only error
-	color = image[0].mean(axis=0) # gets avg color of top row
-	mask = loose_mask(image, color, 55)
-	image[mask] = [255,150,255] # replace background
+	avg_color = image[0].mean(axis=0) # gets avg color of top row
+	mask = loose_mask(image, avg_color, 70)
 
-	plt.imshow(image)
-	plt.show()
-
-	blobs, number_of_blobs = ndimage.label(~mask)
-	plt.imshow(blobs)
-	plt.show()
-
-	# TODO
 	# 2. get continuous pieces
+	blobs, number_of_blobs = ndimage.label(~mask)
 	pieces = []
-	while ~mask.any():
-		break
+	square_size = 0
+	for i in range(1, number_of_blobs):
 		# 2a. find a true piece
+		points = np.argwhere(blobs == i)
+		# somewhat arbitrary method to remove small blobs
+		if points.shape[0] < (mask.shape[0] * mask.shape[1] / number_of_blobs):
+			continue
+		# create piece object and save it
+		piece = Piece(points)
+		pieces.append(piece)
 		# 2b. find size of minimum rectangle to contain continuous piece
-		# 2c. collect continuous piece
+		x_range, y_range = piece.get_xy_range()
+		max_range = max(x_range, y_range)
+		if square_size < max_range:
+			square_size = max_range
 
-	# TODO
-	# 3. normalize size of all pieces
-	normalize(pieces)
+	# 2c. collect continuous piece
+	for piece in pieces:
+		piece.gather_pixel_data(image, square_size, avg_color)
+		# 2d. normalize size of all pieces
+		piece.pixel_data = normalize(piece.pixel_data)
+
 	return pieces
 
 '''
@@ -65,8 +68,7 @@ def normalize(pieces):
 	pass
 
 
-
-im = get_image("puzzle3.jpg")
+im = get_image("puzzle.jpg")
 cut_image(im)
 
 
