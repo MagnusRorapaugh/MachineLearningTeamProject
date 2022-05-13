@@ -15,7 +15,7 @@ class Piece:
 	The box is (roughly) centered on the piece
 	If the given size is not big enough, this function returns None.
 	'''
-	def get_box(self, size):
+	def get_box(self, size): # TODO
 		x_range, y_range = self.get_xy_range()
 		# return None if the box is too small
 		if size < x_range or x < y_range:
@@ -36,5 +36,7 @@ class Piece:
 	image from which the piece was originally created. Saves the pixel data in
 	a size by size matrix where untouched pixels are set to the background color
 	'''
-	def gather_pixel_data(self, image, size, background=[0,0,0]):
+	def gather_pixel_data(self, image, size, background=[0,0,0]): # TODO
+        # 1. create array of only background colors
+        #
 		pass

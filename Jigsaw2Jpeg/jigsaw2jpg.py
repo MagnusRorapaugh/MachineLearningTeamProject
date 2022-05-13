@@ -20,7 +20,7 @@ def cut_image(image):
 	# 1. get mask
 	image = np.copy(image) # prevents read-only error
 	avg_color = image[0].mean(axis=0) # gets avg color of top row
-	mask = loose_mask(image, avg_color, 70)
+	mask = loose_mask(image, avg_color, 70) # can be improved
 
 	# 2. get continuous pieces
 	blobs, number_of_blobs = ndimage.label(~mask)
@@ -64,7 +64,7 @@ def loose_mask(image, color, plus_minus=10):
 '''
 This function will normalize our pieces matrices
 '''
-def normalize(pieces):
+def normalize(pieces): # TODO
 	pass
 
 
