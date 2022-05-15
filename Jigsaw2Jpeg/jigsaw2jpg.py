@@ -65,7 +65,7 @@ def loose_mask(image, color, plus_minus=10):
 This function will normalize our pieces matrices
 '''
 def normalize(pieces): # TODO
-	print("github connection test")
+	# print("github connection test")
 	pass
 
 
