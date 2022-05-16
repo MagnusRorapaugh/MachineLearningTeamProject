@@ -18,11 +18,19 @@ class Piece:
 	def get_box(self, size): # TODO
 		x_range, y_range = self.get_xy_range()
 		# return None if the box is too small
-		if size < x_range or x < y_range:
+		if size < x_range or size < y_range:
+			print('Pieces are larger than desired size; pick bigger size')
 			return None
 		# calculate the midpoint for mins and maxs
 		x_mid = self.x_min + int(x_range/2) # INT ROUNDS DOWN FROM 0.5
-		y_mid = self.y_min + int(y_range/2)
+		y_mid = self.y_min + int(y_range/2) 
+		box_mid = int(size/2)
+		#need to center image 
+  		#just need to move box to the left and up       
+		x = x_mid - box_mid
+		y = y_mid - box_mid     
+		box_pts = (x, y)
+		return box_pts
 
 	'''
 	Returns the the length of the range of x and y which this shape occupies
@@ -42,7 +50,7 @@ class Piece:
 		# 2. get the ideal top corner of the box
 		x0, y0 = self.get_box(size)
 		# populate non-background pixels
-		for xp, yp in points: # xp and yp are the x and y of the point vals
+		for xp, yp in self.points: # xp and yp are the x and y of the point vals
 			new_data[yp - y0][xp - x0] = image[xp][yp]
-		pixel_data = new_data
+		self.pixel_data = new_data
 		return
