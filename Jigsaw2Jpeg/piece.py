@@ -36,7 +36,13 @@ class Piece:
 	image from which the piece was originally created. Saves the pixel data in
 	a size by size matrix where untouched pixels are set to the background color
 	'''
-	def gather_pixel_data(self, image, size, background=[0,0,0]): # TODO
-        # 1. create array of only background colors
-        #
-		pass
+	def gather_pixel_data(self, image, size, background=[0,1,2]):
+		# 1. create array of only background colors
+		new_data = np.tile(np.array(background), (size, size, 1))
+		# 2. get the ideal top corner of the box
+		x0, y0 = self.get_box(size)
+		# populate non-background pixels
+		for xp, yp in points: # xp and yp are the x and y of the point vals
+			new_data[yp - y0][xp - x0] = image[xp][yp]
+		pixel_data = new_data
+		return
