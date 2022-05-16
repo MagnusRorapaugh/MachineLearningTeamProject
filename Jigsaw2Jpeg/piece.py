@@ -42,7 +42,7 @@ class Piece:
 		# 2. get the ideal top corner of the box
 		x0, y0 = self.get_box(size)
 		# populate non-background pixels
-		for xp, yp in points: # xp and yp are the x and y of the point vals
+		for xp, yp in self.points: # xp and yp are the x and y of the point vals
 			new_data[yp - y0][xp - x0] = image[xp][yp]
-		pixel_data = new_data
+		self.pixel_data = new_data
 		return
