@@ -5,7 +5,6 @@ from piece import Piece
 from MachineLearningTeamProject.Model.makePieceNoCSV import processImage
 from MachineLearningTeamProject.Model.labelMaker import labelMaker
 
-
 class PuzzleBuilder:
 
     def __init__(self):
@@ -13,7 +12,6 @@ class PuzzleBuilder:
         # Generate array of pieces
 
         puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 2)
-        print(puzzle_matrix[0][0][0][0])
         self.PUZZLE_WIDTH = 2
         self.PUZZLE_HEIGHT = 2
         self.PIECES = []

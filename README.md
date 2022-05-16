@@ -17,3 +17,18 @@
 
 #### Notes:
  * the size of a given puzzle piece is set in stone once the model is trained. As of now, we are planning on training with puzzle pieces that are 200x200. This will size will need to be the same for any input that the model receives. 
+
+
+## Connection Algorithm Group/Visualization Group
+
+### Input
+ We take in:
+ * dimention of the puzzle
+ * 5-tuples of [N, S, E, W, Not Adjacent] probablilities (0-1) for each peice
+ * 3D RGB numpy array of pixels for fragmented image pieces
+
+### Output
+
+ * Visualization window of the images as they are placed into the puzzle board array
+
+
