@@ -8,8 +8,8 @@ class PuzzleBuilder:
 
     def __init__(self):
 
-        self.PUZZLE_WIDTH = 3
-        self.PUZZLE_HEIGHT = 4
+        self.PUZZLE_WIDTH = 2
+        self.PUZZLE_HEIGHT = 2
 
         # Sample input of shuffled puzzle pieces
         self.PIECES = [[[[50, 50, 50], [10, 10, 10], [200, 200, 200]],
@@ -20,6 +20,7 @@ class PuzzleBuilder:
                         [[25, 25, 25], [100, 100, 100], [40, 40, 40]]],  # piece 3
                        [[[40, 40, 40], [90, 90, 90], [100, 100, 100]],
                         [[40, 40, 40], [90, 90, 90], [100, 100, 100]]]]  # piece 4
+        self.PIECES = np.random.rand(10, 50, 50, 3)
         self.PIECES = np.array(self.PIECES)
 
         self.PIECES_IN_PUZZLE_IDX = []  # keep track of pieces in puzzle we build
@@ -30,6 +31,10 @@ class PuzzleBuilder:
     def visualize_progress(self):
         return
 
+    # Neural network simulation
+    def nn_compare(self, stacked_pieces):
+        return np.array([1, 0, 0, 0, 0])
+
     # Compares piece to all other pieces and returns a probability table
     def get_probability_table(self, piece):
 
@@ -38,9 +43,15 @@ class PuzzleBuilder:
         table_idx = []
         for i in range(len(self.PIECES)):
             if i not in self.PIECES_IN_PUZZLE_IDX:
-                results = nn.compare(piece, self.PIECES[i])  # where nn is the neural network, results is the probability vector
+                # Stack pieces into a 200x200x6 numpy array, return a 5-element numpy array
+                stacked_pieces = np.dstack((piece, self.PIECES[i]))
+
+                # Get results
+                results = self.nn_compare(stacked_pieces)
                 table.append(results)
                 table_idx.append(i)
+        table = np.array(table)
+        table_idx = np.array(table_idx)
 
         return table, table_idx
 
@@ -55,12 +66,15 @@ class PuzzleBuilder:
         north_max_probability = probability_table[max_vals_row_idx[0]][0]
         north_max_piece_idx = probability_table_idx[max_vals_row_idx[0]]
         north_max_piece = self.PIECES[north_max_piece_idx]
-        east_max_probability = probability_table[max_vals_row_idx[1]][1]
-        east_max_piece_idx = probability_table_idx[max_vals_row_idx[1]]
+
+        east_max_probability = probability_table[max_vals_row_idx[2]][2]
+        east_max_piece_idx = probability_table_idx[max_vals_row_idx[2]]
         east_max_piece = self.PIECES[east_max_piece_idx]
-        south_max_probability = probability_table[max_vals_row_idx[2]][2]
-        south_max_piece_idx = probability_table_idx[max_vals_row_idx[2]]
+
+        south_max_probability = probability_table[max_vals_row_idx[1]][1]
+        south_max_piece_idx = probability_table_idx[max_vals_row_idx[1]]
         south_max_piece = self.PIECES[south_max_piece_idx]
+
         west_max_probability = probability_table[max_vals_row_idx[3]][3]
         west_max_piece_idx = probability_table_idx[max_vals_row_idx[3]]
         west_max_piece = self.PIECES[west_max_piece_idx]
@@ -103,7 +117,7 @@ class PuzzleBuilder:
 
         # work through queue
         while not self.pieces_to_check_idx.empty():
-            next_piece = self.pieces_to_check_idx.get()
+            next_piece = self.pieces_to_check_idx.get()[1]
             self.put_piece_neighbors(next_piece)
 
 
