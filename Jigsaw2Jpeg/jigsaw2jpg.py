@@ -31,7 +31,7 @@ def cut_image(image):
 		# 2a. find a true piece
 		points = np.argwhere(blobs == i)
 		# somewhat arbitrary method to remove small blobs
-		if points.shape[0] < (mask.shape[0] * mask.shape[1] / number_of_blobs):
+		if points.shape[0] < 3000:
 			continue
 		# create piece object and save it
 		piece = Piece(points)
@@ -42,9 +42,12 @@ def cut_image(image):
 		if square_size < max_range:
 			square_size = max_range
 
+	avg_color = avg_color.astype(int)
 	# 2c. collect continuous piece
 	for piece in pieces:
 		piece.gather_pixel_data(image, square_size, avg_color)
+		plt.imshow(piece.pixel_data)
+		plt.show()
 		# 2d. normalize size of all pieces
 		piece.pixel_data = normalize(piece.pixel_data)
 
@@ -85,7 +88,10 @@ def normalize(pieces): # TODO
 
 im = get_image("puzzle.jpg")
 cut_image(im)
-
+im = get_image("puzzle2.jpg")
+cut_image(im)
+im = get_image("puzzle3.jpg")
+cut_image(im)
 
 '''
 DEBUGGING CODE:
