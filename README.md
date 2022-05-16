@@ -4,7 +4,7 @@
 ## Model Group
 
 ### Input
- * Our neural network takes as input a nd array with shape (N,l,w,6) where:
+ Our neural network takes as input a nd array with shape (N,l,w,6) where:
  * N = number of pairs of puzzle pieces
  * l = length of each puzzle piece image in pixels
  * w  = width of each puzzle piece image in pixels (this should be a square)
