@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import ndimage
 from piece import *
+from PIL import Image
 
 '''
 This function simply loads in and returns an image given a path
@@ -63,9 +64,22 @@ def loose_mask(image, color, plus_minus=10):
 
 '''
 This function will normalize our pieces matrices
+Takes in an np array representing a puzzle piece
+Converts array to an Image --> found that PIL functions were better suited to scaling images than trying to mess with the image as an arrays.
+Resizes image using PIL library functions
+Converts scaled image back to a np array
+Returns new array
 '''
 def normalize(pieces): # TODO
-	print("github connection test")
+	'''
+	output_size = 150 #do we want this value hard coded or passed in as a parameter?
+	image = Image.fromarray(pieces)
+	#image.show()
+	scaled_image = image.resize((output_size, output_size))
+	#scaled_image.show()
+	scaled_array = np.array(scaled_image)
+	'''
+
 	pass
 
 
