@@ -47,9 +47,9 @@ def processStoreAll():
             pass
     return all_images.astype(np.uint8) #must be type uint8 to show image
 
-all_images = processStoreAll()
-
-# sample example:
-print(all_images[0][0][0].shape)
-image = Image.fromarray(all_images[0][0][0])
-image.show()
+# all_images = processStoreAll()
+#
+# # sample example:
+# print(all_images[0][0][0].shape)
+# image = Image.fromarray(all_images[0][0][0])
+# image.show()
