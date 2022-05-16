@@ -3,11 +3,9 @@ import numpy as np
 import queue
 from piece import Piece
 
-
 class PuzzleBuilder:
 
     def __init__(self):
-
         self.PUZZLE_WIDTH = 3
         self.PUZZLE_HEIGHT = 4
 
@@ -100,7 +98,8 @@ class PuzzleBuilder:
         self.PUZZLE[self.PUZZLE_WIDTH][self.PUZZLE_HEIGHT] = rand_idx  # put in middle of puzzle
         self.PIECES_IN_PUZZLE_IDX.append(rand_idx)  # add to list of pieces in puzzle
         self.pieces_to_check_idx.put((0, Piece(self.PIECES[rand_idx], self.PUZZLE_WIDTH, self.PUZZLE_HEIGHT)))  # add to queue of pieces to check neighbors
-
+        
+        
         # work through queue
         while not self.pieces_to_check_idx.empty():
             next_piece = self.pieces_to_check_idx.get()

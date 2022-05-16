@@ -2,6 +2,7 @@ import numpy as np
 from PIL import Image
 import os
 import cv2
+from matplotlib import pyplot as plt
 import time as tm
 
 # trims the image to a certain size, with a certain number of pieces in a row, the returns a numpy array where [0][0] is a piece, and 
@@ -37,7 +38,7 @@ def processStoreAll():
             files.remove(i)
     all_images = np.full((len(files), pieces_in_row, pieces_in_row, int(dimensions_of_pixels/pieces_in_row), int(dimensions_of_pixels/pieces_in_row), 3), 0)
     print("Getting data from", len(files), "different images")
-            
+    
     # for all of the sample images
     for i in range(len(files)):
         try:
@@ -53,3 +54,10 @@ all_images = processStoreAll()
 print(all_images[0][0][0].shape)
 image = Image.fromarray(all_images[0][0][0])
 image.show()
+
+# Testing code used by the algorithm team
+# image = processImage("Model/sample.jpg", 200, 2)
+# print(image.reshape((200,200,3)).shape)
+# image  = image.reshape((200,200,3))
+# image = Image.fromarray(image, 'RGB')
+# image.show()
