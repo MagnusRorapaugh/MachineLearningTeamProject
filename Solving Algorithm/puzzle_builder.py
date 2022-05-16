@@ -11,7 +11,7 @@ class PuzzleBuilder:
 
         # Generate array of pieces
 
-        puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 2)
+        puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 2, 100)
         self.PUZZLE_WIDTH = 2
         self.PUZZLE_HEIGHT = 2
         self.PIECES = []
