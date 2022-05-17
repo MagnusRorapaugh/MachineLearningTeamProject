@@ -48,7 +48,7 @@ def cut_image(image, normalized_size):
 	for piece in pieces:
 		piece.gather_pixel_data(image, square_size, avg_color)
 		# 2d. normalize size of all pieces
-		piece.pixel_data = normalize_square(piece.pixel_data, normalized_size)
+		piece.pixel_data = normalize(piece.pixel_data, normalized_size, normalized_size)
 
 	return pieces
 
@@ -118,31 +118,14 @@ def flood_fill(matrix_of_image):
 
 
 '''
-This function will normalize our pieces matrices
-Takes in an np array representing a puzzle piece
+This function will normalize an matrix of an image
+Takes in an np array representing a puzzle or puzzle piece
 Converts array to an Image --> found that PIL functions were better suited to scaling images than trying to mess with the image as an arrays.
 Resizes image using PIL library functions
 Converts scaled image back to a np array
 Returns new array
 '''
-def normalize_square(piece, output_size):
-	image = Image.fromarray(piece.astype(np.uint8))
-	#image.show()
-	scaled_image = image.resize((output_size, output_size))
-	#scaled_image.show()
-	scaled_array = np.array(scaled_image)
-	return scaled_array
-
-
-'''
-This function will normalize our initial photo
-Takes in an np array representing a photo of a puzzle
-Converts array to an Image --> found that PIL functions were better suited to scaling images than trying to mess with the image as an arrays.
-Resizes image using PIL library functions
-Converts scaled image back to a np array
-Returns new array
-'''
-def normalize_photo(photo, output_width, output_height):
+def normalize(photo, output_width, output_height):
 	image = Image.fromarray(photo.astype(np.uint8))
 	#image.show()
 	scaled_image = image.resize((output_width, output_height))
