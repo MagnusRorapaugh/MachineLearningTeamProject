@@ -16,13 +16,22 @@ def get_image(path):
 Takes in an image with the top left pixel as "background" then cuts up the image
 into smaller pieces that don't contain that background in an array. Finally, this func
 normalizes the images of those smaller pieces.
-'''
-def cut_image(image, normalized_size):
 
+normalize_scale: takes in a float percentage
+'''
+def cut_image(image, normalize_scale, normalized_size):
 	# 1. get mask
 	image = np.copy(image) # prevents read-only error
-	avg_color = image[0].mean(axis=0) # gets avg color of top row
-	mask = loose_mask(image, avg_color, 70) # can be improved
+
+	#rescale full image
+	dimensions = image.shape
+	new_height = int (dimensions[0] * normalize_scale)
+	new_width = int (dimensions[1] * normalize_scale)
+	normalize(image, new_width, new_height)
+
+	avg_color = np.mean(image[0].mean(axis=0), image[-1].mean(axis=0)) # gets avg color of top row
+	# mask = loose_mask(image, avg_color, 70) # can be improved
+	mask = flood_fill(image)
 
 	# 2. get continuous pieces
 	blobs, number_of_blobs = ndimage.label(~mask)
@@ -127,9 +136,9 @@ Returns new array
 '''
 def normalize(photo, output_width, output_height):
 	image = Image.fromarray(photo.astype(np.uint8))
-	#image.show()
+	image.show()
 	scaled_image = image.resize((output_width, output_height))
-	#scaled_image.show()
+	scaled_image.show()
 	scaled_array = np.array(scaled_image)
 	return scaled_array
 
