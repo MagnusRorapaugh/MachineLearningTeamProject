@@ -1,9 +1,9 @@
-
+from Visualization.Visualizer import Visualizer
 import numpy as np
 import queue
 from piece import Piece
-from MachineLearningTeamProject.Model.makePieceNoCSV import processImage
-from MachineLearningTeamProject.Model.labelMaker import labelMaker
+from Model.makePieceNoCSV import processImage
+from Model.labelMaker import labelMaker
 
 class PuzzleBuilder:
 
@@ -11,10 +11,11 @@ class PuzzleBuilder:
 
         # Generate array of pieces
 
-        puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 2, 100)
-        self.PUZZLE_WIDTH = 2
-        self.PUZZLE_HEIGHT = 2
+        puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 4, 50)
+        self.PUZZLE_WIDTH = 4
+        self.PUZZLE_HEIGHT = 4
         self.PIECES = []
+        self.vis = Visualizer()
 
         for i in range(len(puzzle_matrix)):
             for j in range(len(puzzle_matrix[0])):
@@ -24,13 +25,14 @@ class PuzzleBuilder:
         self.PIECES_IN_PUZZLE_IDX = []  # keep track of pieces in puzzle we build
         self.pieces_to_check_idx = queue.PriorityQueue()  # keep track of pieces we need to check neighbors of
         self.PUZZLE = np.empty((self.PUZZLE_WIDTH * 2, self.PUZZLE_HEIGHT * 2))  # keeps state of puzzle (where each # entry is the index in self.PIECES)
+        self.CONFIDENCE = np.full_like(self.PUZZLE)
         for i in range(len(self.PUZZLE)):
             for j in range(len(self.PUZZLE[0])):
                 self.PUZZLE[i][j] = -1
 
-    # Implemented by visualization team, called when a new piece is added to the puzzle
+    # Implemented by visualization team, called when a new piece is added to the puzzle, sends confidence level too
     def visualize_progress(self):
-        return
+        self.vis.update(self.get_rgb_state(), self.CONFIDENCE)
 
     # Neural network simulation
     def nn_compare(self, piece_1, piece_2):
@@ -98,21 +100,25 @@ class PuzzleBuilder:
         change_made = False
         if north_max_probability > threshold:
             self.PUZZLE[row_idx - 1][column_idx] = north_max_piece_idx
+            self.CONFIDENCE[row_idx - 1][column_idx] = north_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(north_max_piece_idx)
             self.pieces_to_check_idx.put((north_max_probability, (row_idx - 1, column_idx)))
             change_made = True
         if east_max_probability > threshold:
             self.PUZZLE[row_idx][column_idx + 1] = east_max_piece_idx
+            self.CONFIDENCE[row_idx][column_idx + 1] = east_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(east_max_piece_idx)
             self.pieces_to_check_idx.put((east_max_probability, (row_idx, column_idx + 1)))
             change_made = True
         if south_max_probability > threshold:
             self.PUZZLE[row_idx + 1][column_idx] = south_max_piece_idx
+            self.CONFIDENCE[row_idx + 1][column_idx] = south_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(south_max_piece_idx)
             self.pieces_to_check_idx.put((south_max_probability, (row_idx + 1, column_idx)))
             change_made = True
         if west_max_probability > threshold:
             self.PUZZLE[row_idx][column_idx - 1] = west_max_piece_idx
+            self.CONFIDENCE[row_idx][column_idx - 1] = west_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(west_max_piece_idx)
             self.pieces_to_check_idx.put((west_max_probability, (row_idx, column_idx - 1)))
             change_made = True
@@ -124,6 +130,7 @@ class PuzzleBuilder:
     def solve_puzzle(self):
         rand_idx = np.random.randint(0, len(self.PIECES))  # get random piece
         self.PUZZLE[self.PUZZLE_WIDTH][self.PUZZLE_HEIGHT] = rand_idx  # put in middle of puzzle
+        self.CONFIDENCE[self.PUZZLE_WIDTH][self.PUZZLE_HEIGHT] = 1
         self.PIECES_IN_PUZZLE_IDX.append(rand_idx)  # add to list of pieces in puzzle
         self.pieces_to_check_idx.put((0, (self.PUZZLE_WIDTH, self.PUZZLE_HEIGHT)))  # add to queue of pieces to check neighbors
 
@@ -133,20 +140,26 @@ class PuzzleBuilder:
             probability = pq_output[0]
             next_piece_puzzle_idx = pq_output[1]
             self.put_piece_neighbors(next_piece_puzzle_idx)
+            print(self.get_rgb_state())
 
         print(self.PUZZLE)
 
-        # convert solution to rgb
-        solution = []
+    def get_rgb_state(self):
+        # convert state to rgb
+        state = []
         for i in range(len(self.PUZZLE)):
             row = []
             for j in range(len(self.PUZZLE)):
                 piece_idx = int(self.PUZZLE[i][j])
                 if piece_idx != -1:
                     row.append(self.PIECES[piece_idx].colors)
-            if len(row) > 0:
-                solution.append(row)
-        solution = np.array(solution)
+                else:
+                    row.append(np.zeros(self.PIECES[0].colors.shape))
+            # if len(row) > 0:
+            #     state.append(row)
+            state.append(row)
+        state = np.array(state)
+        return state
 
 
 pb = PuzzleBuilder()
