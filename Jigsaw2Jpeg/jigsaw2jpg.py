@@ -65,6 +65,59 @@ def loose_mask(image, color, plus_minus=10):
 	return mask
 
 '''
+Use flood fill algorithm to mask out background of image
+Takes in a np array of the image
+Returns a mask of the image with background pixels labeled as True
+'''
+def flood_fill(matrix_of_image):
+	COLOR_RANGE = 8
+	width = len(matrix)
+	height = len(matrix[0])
+	mask = np.zeros((matrix.shape[0], matrix.shape[1]), dtype=bool)
+	visited = np.zeros((matrix.shape[0], matrix.shape[1]), dtype=bool)
+	queue = []
+
+	start_x = 0
+	start_y = 0
+	start_color = matrix[start_x][start_y]
+	queue.append((start_x, start_y, start_color))
+
+	while len(queue) > 0 :
+		current_tuple = queue.pop(0)
+		x = current_tuple[0]
+		y = current_tuple[1]
+		prev_color = current_tuple[2]
+
+		#set COLOR_RANGE
+		max = prev_color + COLOR_RANGE #NEED TO UPDATE START COLOR WITHIN THE LOOP
+		min = prev_color - COLOR_RANGE
+
+		visited[x][y] = True
+
+		if not (np.all(min<matrix[x][y]) and np.all(matrix[x][y]<max)):
+			#print("color not approved")
+			pass
+
+		# keep crawling
+		else:
+			# update the mask
+			mask[x][y] = True #LABELS BACKGROUND AS TRUE
+			prev_color = matrix[x][y] #UPDATING PREVIOUS COLOR
+			# get neighboring pixels and call on those
+			neighbors = [(x-1,y),(x+1,y),(x-1,y-1),(x+1,y+1),(x-1,y+1),(x+1,y-1),(x,y-1),(x,y+1)]
+			neighbors = [(x-1,y),(x+1,y),(x,y-1),(x,y+1)]
+			# call on each neighbor
+			for n in neighbors:
+				# if in range of image
+				if (0 <= n[0] <= width-1 and 0 <= n[1] <= height-1):
+					if visited[n[0]][n[1]] == False :
+						visited[n[0]][n[1]] = True
+						queue.append((n[0], n[1], prev_color))
+	return mask
+
+
+
+'''
 This function will normalize our pieces matrices
 Takes in an np array representing a puzzle piece
 Converts array to an Image --> found that PIL functions were better suited to scaling images than trying to mess with the image as an arrays.
