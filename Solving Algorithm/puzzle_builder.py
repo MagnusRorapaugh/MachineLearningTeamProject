@@ -1,21 +1,23 @@
-
+from Visualization.Visualizer import Visualizer
 import numpy as np
 import queue
 from piece import Piece
-from MachineLearningTeamProject.Model.makePieceNoCSV import processImage
-from MachineLearningTeamProject.Model.labelMaker import labelMaker
 import keras
+from Model.makePieceNoCSV import processImage
+from Model.labelMaker import labelMaker
 
 class PuzzleBuilder:
 
     def __init__(self):
 
         # Generate array of pieces
-        puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 2, 100)
-        self.PUZZLE_WIDTH = 2
-        self.PUZZLE_HEIGHT = 2
+        puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 4, 50)
+        self.PUZZLE_WIDTH = 4
+        self.PUZZLE_HEIGHT = 4
         self.PIECES = []
+        self.vis = Visualizer()
         self.MODEL = keras.models.load_model('Model/savedModel')
+
 
         for i in range(len(puzzle_matrix)):
             for j in range(len(puzzle_matrix[0])):
@@ -31,7 +33,7 @@ class PuzzleBuilder:
 
     # Implemented by visualization team, called when a new piece is added to the puzzle
     def visualize_progress(self):
-        return
+        self.vis.update(self.get_rgb_state())
 
     # Neural network simulation
     def nn_compare_fake(self, piece_1, piece_2):
@@ -137,20 +139,26 @@ class PuzzleBuilder:
             probability = pq_output[0]
             next_piece_puzzle_idx = pq_output[1]
             self.put_piece_neighbors(next_piece_puzzle_idx)
+            print(self.get_rgb_state())
 
         print(self.PUZZLE)
 
-        # convert solution to rgb
-        solution = []
+    def get_rgb_state(self):
+        # convert state to rgb
+        state = []
         for i in range(len(self.PUZZLE)):
             row = []
             for j in range(len(self.PUZZLE)):
                 piece_idx = int(self.PUZZLE[i][j])
                 if piece_idx != -1:
                     row.append(self.PIECES[piece_idx].colors)
-            if len(row) > 0:
-                solution.append(row)
-        solution = np.array(solution)
+                else:
+                    row.append(np.zeros(self.PIECES[0].colors.shape))
+            # if len(row) > 0:
+            #     state.append(row)
+            state.append(row)
+        state = np.array(state)
+        return state
 
 
 pb = PuzzleBuilder()
