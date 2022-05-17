@@ -196,17 +196,18 @@ def processImage(name, dimensions_of_pixels, pieces_in_row, pixels_per_piece):
 # runs the methods to gather all the data to train on, for however many sample there are. Make sure the location of the images is in the same 
 # place as this program so os.listdir() can grab it. Returns nothing as all puzzle pieces are stored in a directory.
 def getSamplePieces():
-    dimensions_of_pixels = 960 #normal example
-    pieces_in_row = 5 #normal example
+    final_number_of_pixels_per_piece = 200 #for example. The absolute final number of pixels you want in each piece
+    number_of_pieces = 5 #for example
+    dimensions_of_pixels = (final_number_of_pixels_per_piece-8)*number_of_pieces
     
-    pixels_per_piece = int(dimensions_of_pixels/pieces_in_row)
+    pixels_per_piece = final_number_of_pixels_per_piece-8
     path = "Sample_Images/"
     
     files = os.listdir(path)
     for i in files:
         if ".jpeg" not in i and ".jpg" not in i:
             files.remove(i)
-    all_images = np.full((len(files), pieces_in_row, pieces_in_row, pixels_per_piece+8, pixels_per_piece+8, 3), 0)
+    all_images = np.full((len(files), number_of_pieces, number_of_pieces, final_number_of_pixels_per_piece, final_number_of_pixels_per_piece, 3), 0)
 
     # runs all the images and saves them, this is about 3000 images, so will take a few minutes
     for i in range(len(files)):
@@ -214,6 +215,28 @@ def getSamplePieces():
         all_images[i]=tiles
     return all_images.astype(np.uint8) #must be type uint8 to show image
 
+####################################################################################################################################################################
+# temporary?
+# Samples with varying sizes, randomly assigned but controllable. Returns a dictionary, key being the number of the puzzle, value the puzzle as a varying size numpy 
+# array, same format as previous.
+def getSamplePuzzleWithInputSize(final_number_of_pixels_per_piece, number_of_pieces, name):
+    dimensions_of_pixels = (final_number_of_pixels_per_piece-8)*number_of_pieces
+    pixels_per_piece = final_number_of_pixels_per_piece-8
+    tiles = processImage(name, dimensions_of_pixels, pieces_in_row, pixels_per_piece)
+    return tiles.astype(np.uint8) #must be type uint8 to show image
+def getAllPuzzles():
+    path = "Sample_Images/"
+    files = os.listdir(path)
+    for i in files:
+        if ".jpeg" not in i and ".jpg" not in i:
+            files.remove(i)
+    max_pieces = 6
+    max_pixels = 300
+    dictionary_of_puzzles = {}
+    for i in range(len(files)):
+        dictionary_of_puzzles[i]=getSamplePuzzleWithInputSize(random.randrange(max_pixels), random.randrange(max_pieces), path+files[i])
+    return dictionary_of_puzzles
+    
 start_time = tm.time()
 all_images = getSamplePieces()
 t = tm.time()-start_time
