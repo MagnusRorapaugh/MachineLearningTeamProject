@@ -23,12 +23,12 @@ class Piece:
 			return None
 		# calculate the midpoint for mins and maxs
 		x_mid = self.x_min + int(x_range/2) # INT ROUNDS DOWN FROM 0.5
-		y_mid = self.y_min + int(y_range/2) 
+		y_mid = self.y_min + int(y_range/2)
 		box_mid = int(size/2)
-		#need to center image 
-  		#just need to move box to the left and up       
+		#need to center image
+  		#just need to move box to the left and up
 		x = x_mid - box_mid
-		y = y_mid - box_mid     
+		y = y_mid - box_mid
 		box_pts = (x, y)
 		return box_pts
 
@@ -44,7 +44,7 @@ class Piece:
 	image from which the piece was originally created. Saves the pixel data in
 	a size by size matrix where untouched pixels are set to the background color
 	'''
-	def gather_pixel_data(self, image, size, background=[0,1,2]):
+	def gather_pixel_data(self, image, size, background=[-1,-1,-1]): #previous background [0,1,2]
 		# 1. create array of only background colors
 		new_data = np.tile(np.array(background), (size, size, 1))
 		# 2. get the ideal top corner of the box
