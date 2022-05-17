@@ -234,7 +234,9 @@ def getAllPuzzles():
     max_pixels = 300
     dictionary_of_puzzles = {}
     for i in range(len(files)):
-        dictionary_of_puzzles[i]=getSamplePuzzleWithInputSize(random.randrange(max_pixels), random.randrange(max_pieces), path+files[i])
+        pie = random.randrange(max_pieces)+1
+        pix = random.randrange(max_pixels-pie)+pie
+        dictionary_of_puzzles[i]=getSamplePuzzleWithInputSize(pix, pie, path+files[i])
     return dictionary_of_puzzles
     
 start_time = tm.time()
