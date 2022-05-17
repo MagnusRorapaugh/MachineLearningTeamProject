@@ -75,7 +75,7 @@ Use flood fill algorithm to mask out background of image
 Takes in a np array of the image
 Returns a mask of the image with background pixels labeled as True
 '''
-def flood_fill(matrix_of_image):
+def flood_fill(matrix):
 	COLOR_RANGE = 8
 	width = len(matrix)
 	height = len(matrix[0])
@@ -141,8 +141,7 @@ def normalize(photo, output_width, output_height):
 
 
 def main() :
-	image = get_image ("puzzle2.jpg")
-	cut_image(image, .3, 100)
+
 
 
 main()
