@@ -27,51 +27,50 @@ def cut_image(image, normalize_scale, normalized_size):
 	dimensions = image.shape
 	new_height = int (dimensions[0] * normalize_scale)
 	new_width = int (dimensions[1] * normalize_scale)
-	normalize(image, new_width, new_height)
+	image = normalize(image, new_width, new_height)
 
-	avg_color = np.mean(image[0].mean(axis=0), image[-1].mean(axis=0)) # gets avg color of top row
-	# mask = loose_mask(image, avg_color, 70) # can be improved
 	mask = flood_fill(image)
 
-	# 2. get continuous pieces
-	blobs, number_of_blobs = ndimage.label(~mask)
-	pieces = []
-	square_size = 0
-	for i in range(1, number_of_blobs):
-		# 2a. find a true piece
-		points = np.argwhere(blobs == i)
-		# somewhat arbitrary method to remove small blobs
-		if points.shape[0] < 3000:
-			continue
-		# create piece object and save it
-		piece = Piece(points)
-		pieces.append(piece)
-		# 2b. find size of minimum rectangle to contain continuous piece
-		x_range, y_range = piece.get_xy_range()
-		max_range = max(x_range, y_range)
-		if square_size < max_range:
-			square_size = max_range
 
-	avg_color = avg_color.astype(int)
-	# 2c. collect continuous piece
-	for piece in pieces:
-		piece.gather_pixel_data(image, square_size, avg_color)
-		# 2d. normalize size of all pieces
-		piece.pixel_data = normalize(piece.pixel_data, normalized_size, normalized_size)
+	# # 2. get continuous pieces
+	# blobs, number_of_blobs = ndimage.label(~mask)
+	# pieces = []
+	# square_size = 0
+	# for i in range(1, number_of_blobs):
+	# 	# 2a. find a true piece
+	# 	points = np.argwhere(blobs == i)
+	# 	# somewhat arbitrary method to remove small blobs
+	# 	if points.shape[0] < 3000:
+	# 		continue
+	# 	# create piece object and save it
+	# 	piece = Piece(points)
+	# 	pieces.append(piece)
+	# 	# 2b. find size of minimum rectangle to contain continuous piece
+	# 	x_range, y_range = piece.get_xy_range()
+	# 	max_range = max(x_range, y_range)
+	# 	if square_size < max_range:
+	# 		square_size = max_range
+	#
+	# avg_color = avg_color.astype(int)
+	# # 2c. collect continuous piece
+	# for piece in pieces:
+	# 	piece.gather_pixel_data(image, square_size, avg_color)
+	# 	# 2d. normalize size of all pieces
+	# 	piece.pixel_data = normalize(piece.pixel_data, normalized_size, normalized_size)
 
-	return pieces
-
+	return image, mask
+	# return pieces
 '''
 Returns a true false np array with true where the input image is not the same as color
 '''
-def loose_mask(image, color, plus_minus=10):
-	color = np.array(color)
-	c_min = color - plus_minus
-	c_max = color + plus_minus
-	less_than = np.all(image[:,:,:] >= c_min, axis=2)
-	grtr_than = np.all(image[:,:,:] <= c_max, axis=2)
-	mask = (less_than & grtr_than)
-	return mask
+# def loose_mask(image, color, plus_minus=10):
+# 	color = np.array(color)
+# 	c_min = color - plus_minus
+# 	c_max = color + plus_minus
+# 	less_than = np.all(image[:,:,:] >= c_min, axis=2)
+# 	grtr_than = np.all(image[:,:,:] <= c_max, axis=2)
+# 	mask = (less_than & grtr_than)
+# 	return mask
 
 '''
 Use flood fill algorithm to mask out background of image
@@ -122,6 +121,7 @@ def flood_fill(matrix):
 					if visited[n[0]][n[1]] == False :
 						visited[n[0]][n[1]] = True
 						queue.append((n[0], n[1], prev_color))
+	print(mask.shape)
 	return mask
 
 
@@ -136,18 +136,104 @@ Returns new array
 '''
 def normalize(photo, output_width, output_height):
 	image = Image.fromarray(photo.astype(np.uint8))
-	image.show()
+	# image.show()
 	scaled_image = image.resize((output_width, output_height))
-	scaled_image.show()
+	# scaled_image.show()
 	scaled_array = np.array(scaled_image)
 	return scaled_array
 
 
 '''
-To test flood_fill
+Finally
 '''
-image = get_image("puzzle3.jpg")
-mask = flood_fill(image)
+
+image = np.copy(get_image("puzwhite.jpg"))
+image, mask = cut_image(image, .19, 40)
 
 plt.imshow(mask)
 plt.show()
+
+image[mask] = [255,150,255]
+plt.imshow(image)
+plt.show()
+
+
+
+
+
+
+'''
+To test flood_fill
+'''
+# image = get_image("puzzle3.jpg")
+# mask = flood_fill(image)
+#
+# plt.imshow(mask)
+# plt.show()
+
+
+'''
+To scale down an image of a piece
+'''
+
+# image = get_image("puzzle3.jpg")
+# image = np.copy(image[66:377, 74:357,:])
+# new = normalize(image, 40)
+#
+# plt.imshow(new)
+# plt.show()
+
+
+'''
+To test flood_fill
+'''
+# # image = get_image("puzzle3.jpg")
+# # image = np.copy(image)
+# mask = flood_fill(new)
+#
+# plt.imshow(mask)
+# plt.show()
+#
+# new[mask] = [255,150,255]
+# plt.imshow(new)
+# plt.show()
+#
+#
+# new = normalize(new, 20)
+# plt.imshow(new)
+# plt.show()
+#
+
+
+
+
+
+
+
+'''
+To scale down an image of multiple pieces
+'''
+#
+# image = get_image("puzzle3.jpg")
+# image = np.copy(image[:500, :500,:])
+# new = normalize(image, 40)
+#
+# plt.imshow(new)
+# plt.show()
+#
+#
+
+
+'''
+To test loose_mask
+'''
+# # image = get_image("puzzle3.jpg")
+# # image = np.copy(image)
+# mask = loose_mask(new, new[0].mean(axis=0), 20)
+# #
+# plt.imshow(mask)
+# plt.show()
+#
+# new[mask] = [255,150,255]
+# plt.imshow(new)
+# plt.show()
