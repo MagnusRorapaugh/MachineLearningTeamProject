@@ -1,22 +1,24 @@
-from Visualization.Visualizer import Visualizer
+from MachineLearningTeamProject.Visualization.Visualizer import Visualizer
 import numpy as np
 import queue
 from piece import Piece
 import keras
-from Model.makePieceNoCSV import processImage
-from Model.labelMaker import labelMaker
+from MachineLearningTeamProject.Model.makePieceNoCSV import processImage
+from MachineLearningTeamProject.Model.labelMaker import labelMaker
 
 class PuzzleBuilder:
 
     def __init__(self):
 
         # Generate array of pieces
-        puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 4, 50)
+        puzzle_matrix = processImage("../Visualization/1000.jpg", 100, 5, 20)
         self.PUZZLE_WIDTH = 4
         self.PUZZLE_HEIGHT = 4
         self.PIECES = []
         self.vis = Visualizer()
-        self.MODEL = keras.models.load_model('Model/savedModel')
+        p = "/Users/jamesdollard/PycharmProjects/machine_learning/MachineLearningTeamProject/Model/90.0"
+        '../Model/90.0'
+        self.MODEL = keras.models.load_model(p)
 
 
         for i in range(len(puzzle_matrix)):
@@ -47,7 +49,7 @@ class PuzzleBuilder:
     def nn_compare(self, piece_1, piece_2):
         # Stack pieces into a 200x200x6 numpy array, return a 5-element numpy array
         stacked_pieces = np.dstack((piece_1.colors, piece_2.colors))
-        return self.MODEL.predict(stacked_pieces)
+        return self.MODEL.predict(stacked_pieces.reshape((1, *stacked_pieces.shape)))[0]
 
     # Compares piece to all other pieces and returns a probability table
     def get_probability_table(self, piece):
