@@ -32,7 +32,7 @@ class Visualizer:
             piece_to_render = Image.fromarray(piece_to_render.astype(np.uint8))
             self.canvas.paste(piece_to_render, (int(pos[1] * self.piece_shape), int(pos[0] * self.piece_shape)))
             draw = ImageDraw.Draw(self.canvas)
-            draw.text((int(pos[1] * self.piece_shape) + 50, int(pos[0] * self.piece_shape)),
+            draw.text((int(pos[1] * self.piece_shape) + int(self.piece_shape)-10, int(pos[0] * self.piece_shape)),
                       str(self.confidence[pos[0]][pos[1]]), fill=(255, 0, 0))
             temp = self.canvas.copy()
             self.to_render.put(temp)

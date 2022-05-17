@@ -1,24 +1,24 @@
-from MachineLearningTeamProject.Visualization.Visualizer import Visualizer
+import joblib
+
+from Visualization.Visualizer import Visualizer
 import numpy as np
 import queue
 from piece import Piece
 import keras
-from MachineLearningTeamProject.Model.makePieceNoCSV import processImage
-from MachineLearningTeamProject.Model.labelMaker import labelMaker
+from Model.makePieceNoCSV import processImage
+from Model.labelMaker import labelMaker
 
 class PuzzleBuilder:
 
     def __init__(self):
 
         # Generate array of pieces
-        puzzle_matrix = processImage("../Visualization/1000.jpg", 100, 5, 20)
+        puzzle_matrix = joblib.load("../Data/Processed_Data/allimages")
         self.PUZZLE_WIDTH = 4
         self.PUZZLE_HEIGHT = 4
         self.PIECES = []
         self.vis = Visualizer()
-        p = "/Users/jamesdollard/PycharmProjects/machine_learning/MachineLearningTeamProject/Model/90.0"
-        '../Model/90.0'
-        self.MODEL = keras.models.load_model(p)
+        self.MODEL = keras.models.load_model('Model/savedModel')
 
 
         for i in range(len(puzzle_matrix)):
@@ -28,13 +28,14 @@ class PuzzleBuilder:
 
         self.PIECES_IN_PUZZLE_IDX = []  # keep track of pieces in puzzle we build
         self.pieces_to_check_idx = queue.PriorityQueue()  # keep track of pieces we need to check neighbors of
-        self.PUZZLE = np.empty((self.PUZZLE_WIDTH * 2, self.PUZZLE_HEIGHT * 2))  # keeps state of puzzle (where each # entry is the index in self.PIECES)
+        self.PUZZLE = np.empty((self.PUZZLE_WIDTH * 2,
+                                self.PUZZLE_HEIGHT * 2))  # keeps state of puzzle (where each # entry is the index in self.PIECES)
         self.CONFIDENCE = np.full_like(self.PUZZLE)
         for i in range(len(self.PUZZLE)):
             for j in range(len(self.PUZZLE[0])):
                 self.PUZZLE[i][j] = -1
 
-    # Implemented by visualization team, called when a new piece is added to the puzzle, sends confidence level too
+    # Implemented by visualization team, called when a new piece is added to the puzzle
     def visualize_progress(self):
         self.vis.update(self.get_rgb_state(), self.CONFIDENCE)
 
