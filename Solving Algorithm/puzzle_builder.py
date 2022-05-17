@@ -1,9 +1,9 @@
-
+from Visualization.Visualizer import Visualizer
 import numpy as np
 import queue
 from piece import Piece
-from MachineLearningTeamProject.Model.makePieceNoCSV import processImage
-from MachineLearningTeamProject.Model.labelMaker import labelMaker
+from Model.makePieceNoCSV import processImage
+from Model.labelMaker import labelMaker
 
 class PuzzleBuilder:
 
@@ -11,10 +11,11 @@ class PuzzleBuilder:
 
         # Generate array of pieces
 
-        puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 2, 100)
-        self.PUZZLE_WIDTH = 2
-        self.PUZZLE_HEIGHT = 2
+        puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 4, 50)
+        self.PUZZLE_WIDTH = 4
+        self.PUZZLE_HEIGHT = 4
         self.PIECES = []
+        self.vis = Visualizer()
 
         for i in range(len(puzzle_matrix)):
             for j in range(len(puzzle_matrix[0])):
@@ -30,7 +31,7 @@ class PuzzleBuilder:
 
     # Implemented by visualization team, called when a new piece is added to the puzzle
     def visualize_progress(self):
-        return
+        self.vis.update(self.get_rgb_state())
 
     # Neural network simulation
     def nn_compare(self, piece_1, piece_2):
