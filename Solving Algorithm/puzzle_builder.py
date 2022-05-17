@@ -133,20 +133,26 @@ class PuzzleBuilder:
             probability = pq_output[0]
             next_piece_puzzle_idx = pq_output[1]
             self.put_piece_neighbors(next_piece_puzzle_idx)
+            print(self.get_rgb_state())
 
         print(self.PUZZLE)
 
-        # convert solution to rgb
-        solution = []
+    def get_rgb_state(self):
+        # convert state to rgb
+        state = []
         for i in range(len(self.PUZZLE)):
             row = []
             for j in range(len(self.PUZZLE)):
                 piece_idx = int(self.PUZZLE[i][j])
                 if piece_idx != -1:
                     row.append(self.PIECES[piece_idx].colors)
-            if len(row) > 0:
-                solution.append(row)
-        solution = np.array(solution)
+                else:
+                    row.append(np.zeros(self.PIECES[0].colors.shape))
+            # if len(row) > 0:
+            #     state.append(row)
+            state.append(row)
+        state = np.array(state)
+        return state
 
 
 pb = PuzzleBuilder()
