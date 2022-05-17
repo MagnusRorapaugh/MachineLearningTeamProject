@@ -14,9 +14,10 @@ def get_image(path):
 
 '''
 Takes in an image with the top left pixel as "background" then cuts up the image
-into smaller pieces that don't contain that background in an array
+into smaller pieces that don't contain that background in an array. Finally, this func
+normalizes the images of those smaller pieces.
 '''
-def cut_image(image):
+def cut_image(image, normalized_size):
 
 	# 1. get mask
 	image = np.copy(image) # prevents read-only error
@@ -46,10 +47,8 @@ def cut_image(image):
 	# 2c. collect continuous piece
 	for piece in pieces:
 		piece.gather_pixel_data(image, square_size, avg_color)
-		plt.imshow(piece.pixel_data)
-		plt.show()
 		# 2d. normalize size of all pieces
-		piece.pixel_data = normalize(piece.pixel_data)
+		piece.pixel_data = normalize(piece.pixel_data, normalized_size)
 
 	return pieces
 
@@ -73,36 +72,10 @@ Resizes image using PIL library functions
 Converts scaled image back to a np array
 Returns new array
 '''
-def normalize(pieces): # TODO
-	'''
-	output_size = 150 #do we want this value hard coded or passed in as a parameter?
-	image = Image.fromarray(pieces)
+def normalize(piece, output_size):
+	image = Image.fromarray(piece.astype(np.uint8))
 	#image.show()
 	scaled_image = image.resize((output_size, output_size))
 	#scaled_image.show()
 	scaled_array = np.array(scaled_image)
-	'''
-
-	pass
-
-
-im = get_image("puzzle.jpg")
-cut_image(im)
-im = get_image("puzzle2.jpg")
-cut_image(im)
-im = get_image("puzzle3.jpg")
-cut_image(im)
-
-'''
-DEBUGGING CODE:
-fake_image = np.array(
-	[
-		[[1,0,0], [4,0,3], [0,0,3]],
-		[[100,200,30], [1,2,3], [100,200,30]],
-		[[100,200,30], [130,200,30], [1,3,3]]
-	]
-)
-
-cut_image(fake_image)
-# plt.loose_mask(fake_image, [1,2,3])
-'''
+	return scaled_array
