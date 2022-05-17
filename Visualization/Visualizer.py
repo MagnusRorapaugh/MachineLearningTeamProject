@@ -27,7 +27,6 @@ class Visualizer:
 
     def gen_photo(self):
         for pos in self.render_dict:
-            print(pos)
             piece_to_render = self.render_dict[pos]
             piece_to_render = Image.fromarray(piece_to_render.astype(np.uint8))
             self.canvas.paste(piece_to_render, (int(pos[1] * self.piece_shape), int(pos[0] * self.piece_shape)))

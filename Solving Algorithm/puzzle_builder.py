@@ -16,10 +16,7 @@ class PuzzleBuilder:
         self.PUZZLE_HEIGHT = 4
         self.PIECES = []
         self.vis = Visualizer()
-        p = "/Users/jamesdollard/PycharmProjects/machine_learning/MachineLearningTeamProject/Model/90.0"
-        '../Model/90.0'
-        self.MODEL = keras.models.load_model(p)
-
+        self.MODEL = keras.models.load_model('../Model/savedModel')
 
         for i in range(len(puzzle_matrix)):
             for j in range(len(puzzle_matrix[0])):
@@ -29,7 +26,7 @@ class PuzzleBuilder:
         self.PIECES_IN_PUZZLE_IDX = []  # keep track of pieces in puzzle we build
         self.pieces_to_check_idx = queue.PriorityQueue()  # keep track of pieces we need to check neighbors of
         self.PUZZLE = np.empty((self.PUZZLE_WIDTH * 2, self.PUZZLE_HEIGHT * 2))  # keeps state of puzzle (where each # entry is the index in self.PIECES)
-        self.CONFIDENCE = np.full_like(self.PUZZLE)
+        self.CONFIDENCE = np.full_like(self.PUZZLE, -1)
         for i in range(len(self.PUZZLE)):
             for j in range(len(self.PUZZLE[0])):
                 self.PUZZLE[i][j] = -1
@@ -61,7 +58,7 @@ class PuzzleBuilder:
         for i in range(len(self.PIECES)):
             if i not in self.PIECES_IN_PUZZLE_IDX:
                 # Get results
-                results = self.nn_compare(piece, self.PIECES[i])
+                results = self.nn_compare_fake(piece, self.PIECES[i])
                 table.append(results)
                 table_idx.append(i)
         table = np.array(table)
@@ -101,7 +98,7 @@ class PuzzleBuilder:
         west_max_piece = self.PIECES[west_max_piece_idx]
 
         # If piece passes threshold, add to puzzle
-        threshold = 0.8
+        threshold = 0.9
         row_idx = popped_piece_row_idx
         column_idx = popped_piece_column_idx
         change_made = False
@@ -109,25 +106,25 @@ class PuzzleBuilder:
             self.PUZZLE[row_idx - 1][column_idx] = north_max_piece_idx
             self.CONFIDENCE[row_idx - 1][column_idx] = north_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(north_max_piece_idx)
-            self.pieces_to_check_idx.put((north_max_probability, (row_idx - 1, column_idx)))
+            self.pieces_to_check_idx.put((-1 * north_max_probability, (row_idx - 1, column_idx)))
             change_made = True
         if east_max_probability > threshold:
             self.PUZZLE[row_idx][column_idx + 1] = east_max_piece_idx
             self.CONFIDENCE[row_idx][column_idx + 1] = east_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(east_max_piece_idx)
-            self.pieces_to_check_idx.put((east_max_probability, (row_idx, column_idx + 1)))
+            self.pieces_to_check_idx.put((-1 * east_max_probability, (row_idx, column_idx + 1)))
             change_made = True
         if south_max_probability > threshold:
             self.PUZZLE[row_idx + 1][column_idx] = south_max_piece_idx
             self.CONFIDENCE[row_idx + 1][column_idx] = south_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(south_max_piece_idx)
-            self.pieces_to_check_idx.put((south_max_probability, (row_idx + 1, column_idx)))
+            self.pieces_to_check_idx.put((-1 * south_max_probability, (row_idx + 1, column_idx)))
             change_made = True
         if west_max_probability > threshold:
             self.PUZZLE[row_idx][column_idx - 1] = west_max_piece_idx
             self.CONFIDENCE[row_idx][column_idx - 1] = west_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(west_max_piece_idx)
-            self.pieces_to_check_idx.put((west_max_probability, (row_idx, column_idx - 1)))
+            self.pieces_to_check_idx.put((-1 * west_max_probability, (row_idx, column_idx - 1)))
             change_made = True
 
         # If puzzle changed, update visuals
@@ -139,7 +136,7 @@ class PuzzleBuilder:
         self.PUZZLE[self.PUZZLE_WIDTH][self.PUZZLE_HEIGHT] = rand_idx  # put in middle of puzzle
         self.CONFIDENCE[self.PUZZLE_WIDTH][self.PUZZLE_HEIGHT] = 1
         self.PIECES_IN_PUZZLE_IDX.append(rand_idx)  # add to list of pieces in puzzle
-        self.pieces_to_check_idx.put((0, (self.PUZZLE_WIDTH, self.PUZZLE_HEIGHT)))  # add to queue of pieces to check neighbors
+        self.pieces_to_check_idx.put((-1, (self.PUZZLE_WIDTH, self.PUZZLE_HEIGHT)))  # add to queue of pieces to check neighbors
 
         # work through queue
         while not self.pieces_to_check_idx.empty() and len(self.PIECES_IN_PUZZLE_IDX) < len(self.PIECES):
