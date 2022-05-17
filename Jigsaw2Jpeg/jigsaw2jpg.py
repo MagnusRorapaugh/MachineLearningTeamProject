@@ -29,10 +29,15 @@ def cut_image(image, set_width, normalized_size):
 	height = dimensions[0]
 	if width < set_width :
 		set_width = width
+	else :
 		ratio = set_width / width
 		height = int(height * ratio)
 
 	image = normalize(image, set_width, height)
+	print("height")
+	print(height)
+	print("width")
+	print(set_width)
 	mask, avg_color = flood_fill(image)
 
 
@@ -44,7 +49,8 @@ def cut_image(image, set_width, normalized_size):
 	for i in range(1, number_of_blobs):
 		# 2a. find a true piece
 		points = np.argwhere(blobs == i)
-		blob_array.append(points.shape)
+		if points.shape[0] > 500 :
+			blob_array.append(points.shape[0])
 		# somewhat arbitrary method to remove small blobs
 	# 	if points.shape[0] < 3000:
 	# 		continue
@@ -142,7 +148,7 @@ def normalize(photo, output_width, output_height):
 Finally
 '''
 
-image = np.copy(get_image("puzzle.jpg"))
+image = np.copy(get_image("puzwhite.jpg"))
 blob_info = cut_image(image, 500, 40)
 print(blob_info)
 '''
