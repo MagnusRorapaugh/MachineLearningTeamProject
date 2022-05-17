@@ -13,7 +13,8 @@ class PuzzleBuilder:
     def __init__(self):
 
         # Generate array of pieces
-        puzzle_matrix = joblib.load("../Data/Processed_Data/allimages")
+        # puzzle_matrix = joblib.load("../Data/Processed_Data/allimages")
+        puzzle_matrix = processImage("../Visualization/1000.jpg", 100, 5, 20)
         self.PUZZLE_WIDTH = 4
         self.PUZZLE_HEIGHT = 4
         self.PIECES = []
@@ -100,38 +101,34 @@ class PuzzleBuilder:
         west_max_piece = self.PIECES[west_max_piece_idx]
 
         # If piece passes threshold, add to puzzle
-        threshold = 0.9
+        threshold = 0.95
         row_idx = popped_piece_row_idx
         column_idx = popped_piece_column_idx
-        change_made = False
         if north_max_probability > threshold:
             self.PUZZLE[row_idx - 1][column_idx] = north_max_piece_idx
             self.CONFIDENCE[row_idx - 1][column_idx] = north_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(north_max_piece_idx)
             self.pieces_to_check_idx.put((-1 * north_max_probability, (row_idx - 1, column_idx)))
-            change_made = True
+            self.visualize_progress()
         if east_max_probability > threshold:
             self.PUZZLE[row_idx][column_idx + 1] = east_max_piece_idx
             self.CONFIDENCE[row_idx][column_idx + 1] = east_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(east_max_piece_idx)
             self.pieces_to_check_idx.put((-1 * east_max_probability, (row_idx, column_idx + 1)))
-            change_made = True
+            self.visualize_progress()
         if south_max_probability > threshold:
             self.PUZZLE[row_idx + 1][column_idx] = south_max_piece_idx
             self.CONFIDENCE[row_idx + 1][column_idx] = south_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(south_max_piece_idx)
             self.pieces_to_check_idx.put((-1 * south_max_probability, (row_idx + 1, column_idx)))
-            change_made = True
+            self.visualize_progress()
         if west_max_probability > threshold:
             self.PUZZLE[row_idx][column_idx - 1] = west_max_piece_idx
             self.CONFIDENCE[row_idx][column_idx - 1] = west_max_probability
             self.PIECES_IN_PUZZLE_IDX.append(west_max_piece_idx)
             self.pieces_to_check_idx.put((-1 * west_max_probability, (row_idx, column_idx - 1)))
-            change_made = True
-
-        # If puzzle changed, update visuals
-        if change_made:
             self.visualize_progress()
+
 
     def solve_puzzle(self):
         rand_idx = np.random.randint(0, len(self.PIECES))  # get random piece

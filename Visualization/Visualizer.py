@@ -14,6 +14,7 @@ class Visualizer:
         self.render_dict = None
         self.to_render = Queue()
         self.confidence = None
+        self.canvas = None
 
     def extract_pieces(self):
         dim1 = self.data.shape[0]
@@ -54,8 +55,8 @@ class Visualizer:
         self.confidence = confidence
         self.piece_shape = data.shape[2]
         self.num_pieces = (data.shape[0] + 1) / 2
-        self.canvas = Image.new('RGB', (
-            int(self.piece_shape * self.data.shape[0]), int(self.piece_shape * self.data.shape[1])))
+        # self.canvas = Image.new('RGB', (
+        #     int(self.piece_shape * self.data.shape[0]), int(self.piece_shape * self.data.shape[1])))
         self.extract_pieces()
         self.gen_photo()
         self.render()

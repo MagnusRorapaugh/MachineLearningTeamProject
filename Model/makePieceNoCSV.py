@@ -46,11 +46,11 @@ def getSamplePieces():
     return all_images.astype(np.uint8)  # must be type uint8 to show image
 
 
-start_time = tm.time()
-all_images = getSamplePieces()
-joblib.dump(all_images, '../Data/Processed_Data_Small/allimages', compress=0)
-t = tm.time() - start_time
-print("Took", int(t / 60), "minutes and", "{:.2f}".format(t - 60 * int(t / 60)), "seconds to gather the training data")
+# start_time = tm.time()
+# all_images = getSamplePieces()
+# joblib.dump(all_images, '../Data/Processed_Data_Small/allimages', compress=0)
+# t = tm.time() - start_time
+# print("Took", int(t / 60), "minutes and", "{:.2f}".format(t - 60 * int(t / 60)), "seconds to gather the training data")
 
 # sample code for getting a specific piece
 # print("Puzzle 0, piece in the second row and third column is at all_images[0][1][2], and looks like:")
