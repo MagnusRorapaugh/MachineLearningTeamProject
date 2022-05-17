@@ -211,7 +211,7 @@ def getSamplePieces():
 
     # runs all the images and saves them, this is about 3000 images, so will take a few minutes
     for i in range(len(files)):
-        tiles = processImage(path + files[i], dimensions_of_pixels, pieces_in_row, pixels_per_piece)
+        tiles = processImage(path + files[i], dimensions_of_pixels, number_of_pieces, pixels_per_piece)
         all_images[i]=tiles
     return all_images.astype(np.uint8) #must be type uint8 to show image
 
@@ -222,7 +222,7 @@ def getSamplePieces():
 def getSamplePuzzleWithInputSize(final_number_of_pixels_per_piece, number_of_pieces, name):
     dimensions_of_pixels = (final_number_of_pixels_per_piece-8)*number_of_pieces
     pixels_per_piece = final_number_of_pixels_per_piece-8
-    tiles = processImage(name, dimensions_of_pixels, pieces_in_row, pixels_per_piece)
+    tiles = processImage(name, dimensions_of_pixels, number_of_pieces, pixels_per_piece)
     return tiles.astype(np.uint8) #must be type uint8 to show image
 def getAllPuzzles():
     path = "Sample_Images/"
@@ -234,8 +234,8 @@ def getAllPuzzles():
     max_pixels = 300
     dictionary_of_puzzles = {}
     for i in range(len(files)):
-        pie = random.randrange(max_pieces)+1
-        pix = random.randrange(max_pixels-pie)+pie
+        pie = random.randrange(max_pieces)+2
+        pix = random.randrange(max_pixels-pie)+pie+8
         dictionary_of_puzzles[i]=getSamplePuzzleWithInputSize(pix, pie, path+files[i])
     return dictionary_of_puzzles
     
