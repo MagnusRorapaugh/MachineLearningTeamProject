@@ -2,6 +2,7 @@ from Visualization.Visualizer import Visualizer
 import numpy as np
 import queue
 from piece import Piece
+import keras
 from Model.makePieceNoCSV import processImage
 from Model.labelMaker import labelMaker
 
@@ -10,12 +11,13 @@ class PuzzleBuilder:
     def __init__(self):
 
         # Generate array of pieces
-
         puzzle_matrix = processImage("../Visualization/1000.jpg", 200, 4, 50)
         self.PUZZLE_WIDTH = 4
         self.PUZZLE_HEIGHT = 4
         self.PIECES = []
         self.vis = Visualizer()
+        self.MODEL = keras.models.load_model('Model/savedModel')
+
 
         for i in range(len(puzzle_matrix)):
             for j in range(len(puzzle_matrix[0])):
@@ -34,15 +36,18 @@ class PuzzleBuilder:
         self.vis.update(self.get_rgb_state())
 
     # Neural network simulation
-    def nn_compare(self, piece_1, piece_2):
-        # Stack pieces into a 200x200x6 numpy array, return a 5-element numpy array
-        # stacked_pieces = np.dstack((piece, self.PIECES[i]))
-
+    def nn_compare_fake(self, piece_1, piece_2):
         piece_1_x = piece_1.column_idx
         piece_1_y = piece_1.row_idx
         piece_2_x = piece_2.column_idx
         piece_2_y = piece_2.row_idx
         return labelMaker(piece_1_x, piece_1_y, piece_2_x, piece_2_y)
+
+    # Get the probability vector of two pieces fitting together
+    def nn_compare(self, piece_1, piece_2):
+        # Stack pieces into a 200x200x6 numpy array, return a 5-element numpy array
+        stacked_pieces = np.dstack((piece_1.colors, piece_2.colors))
+        return self.MODEL.predict(stacked_pieces)
 
     # Compares piece to all other pieces and returns a probability table
     def get_probability_table(self, piece):
