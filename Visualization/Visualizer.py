@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from queue import Queue
 import time
+import matplotlib.pyplot as plt
 
 
 class Visualizer:
