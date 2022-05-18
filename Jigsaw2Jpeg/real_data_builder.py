@@ -18,26 +18,25 @@ Output File Numpy Format:
 # length
 # color
 '''
-def jpg_to_np_dataset(infile, outfile, row_len, im_size):
+def jpg_to_np_dataset(infile, outfile, im_size=20):
 	# load image
 	im = imread(infile)
 	# split image
-	pieces = cut_image(im, im_size)
+	pieces = cut_image(im, 500, im_size)
 	# create empty array
-	data = np.zeros((row_len, int(len(pieces)/row_len), im_size, im_size))
-	for row in range(data.shape[0]):
-		for col in range(data.shape[1]):
-			data[row][col] = pieces[row * row_len + col].pixel_data / 255
-	
+	data = np.zeros((len(pieces), im_size, im_size, 3))
+	for i in range(len(pieces)):
+		data[i] = pieces[i].pixel_data / 255
 	print("Data shape:", data.shape)
 	# save file
 	joblib.dump(data, outfile)
+	return data
 
 def main():
-	inf = "puzzle.jpg"
+	inf = "puzwhite.jpg"
 	outf = "puzzle.np"
 	print("Saving Data from %s to %s!" % (inf, outf))
-	jpg_to_np_dataset(inf, outf, 1, 20)
+	jpg_to_np_dataset(inf, outf, 20)
 
 if __name__ == "__main__":
 	main()

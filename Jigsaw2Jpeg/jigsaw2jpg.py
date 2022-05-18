@@ -34,43 +34,36 @@ def cut_image(image, set_width, normalized_size):
 		height = int(height * ratio)
 
 	image = normalize(image, set_width, height)
-	print("height")
-	print(height)
-	print("width")
-	print(set_width)
 	mask, avg_color = flood_fill(image)
 
 
 	 # 2. get continuous pieces
 	blobs, number_of_blobs = ndimage.label(~mask)
-	blob_array = []
 	pieces = []
 	square_size = 0
 	for i in range(1, number_of_blobs):
 		# 2a. find a true piece
 		points = np.argwhere(blobs == i)
-		if points.shape[0] > 500 :
-			blob_array.append(points.shape[0])
 		# somewhat arbitrary method to remove small blobs
-	# 	if points.shape[0] < 3000:
-	# 		continue
-	# 	# create piece object and save it
-	# 	piece = Piece(points)
-	# 	pieces.append(piece)
-	# 	# 2b. find size of minimum rectangle to contain continuous piece
-	# 	x_range, y_range = piece.get_xy_range()
-	# 	max_range = max(x_range, y_range)
-	# 	if square_size < max_range:
-	# 		square_size = max_range
-	#
-	# avg_color = avg_color.astype(int)
-	# # 2c. collect continuous piece
-	# for piece in pieces:
-	# 	piece.gather_pixel_data(image, square_size, avg_color)
-	# 	# 2d. normalize size of all pieces
-	# 	piece.pixel_data = normalize(piece.pixel_data, normalized_size, normalized_size)
-
-	return blob_array
+		if points.shape[0] < set_width / 2:
+			continue
+		# create piece object and save it
+		piece = Piece(points)
+		pieces.append(piece)
+		# 2b. find size of minimum rectangle to contain continuous piece
+		x_range, y_range = piece.get_xy_range()
+		max_range = max(x_range, y_range)
+		if square_size < max_range:
+			square_size = max_range
+	
+	avg_color = avg_color.astype(int)
+	# 2c. collect continuous piece
+	for piece in pieces:
+		piece.gather_pixel_data(image, square_size, avg_color)
+		# 2d. normalize size of all pieces
+		piece.pixel_data = normalize(piece.pixel_data, normalized_size, normalized_size)
+		
+	return pieces
 
 
 '''
@@ -142,26 +135,6 @@ def normalize(photo, output_width, output_height):
 	# scaled_image.show()
 	scaled_array = np.array(scaled_image)
 	return scaled_array
-
-
-'''
-Finally
-'''
-
-image = np.copy(get_image("puzwhite.jpg"))
-blob_info = cut_image(image, 500, 40)
-print(blob_info)
-'''
-plt.imshow(mask)
-plt.show()
-
-image[mask] = [255,150,255]
-plt.imshow(image)
-plt.show()
-
-'''
-
-
 
 
 '''
