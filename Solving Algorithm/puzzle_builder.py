@@ -2,11 +2,9 @@ import numpy as np
 import queue
 from piece import Piece
 import keras
-from MachineLearningTeamProject.Model.makePieceNoCSV import processImage
 from MachineLearningTeamProject.Model.labelMaker import labelMaker
 from MachineLearningTeamProject.Visualization.Visualizer import Visualizer
 from MachineLearningTeamProject.Jigsaw2Jpeg.real_data_builder import jpg_to_np_dataset
-import joblib
 
 class PuzzleBuilder:
 

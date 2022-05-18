@@ -1,4 +1,3 @@
-import numpy as np
 import joblib
 from jigsaw2jpg import *
 from matplotlib.image import imread
