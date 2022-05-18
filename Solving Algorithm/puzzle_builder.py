@@ -15,7 +15,7 @@ class PuzzleBuilder:
 
         # Generate array of pieces
         # puzzle_matrix = joblib.load("../Data/Processed_Data/allimages")
-        puzzle_matrix = processImage("../Visualization/img3.png", 100, 5, 20)
+        puzzle_matrix = processImage("../Jigsaw2Jpeg/puzwhite.jpg", 100, 5, 20)
         # puzzle_matrix = jpg_to_np_dataset("puzwhite.jpg", None, im_size=20)
         self.PUZZLE_WIDTH = 5
         self.PUZZLE_HEIGHT = 5
