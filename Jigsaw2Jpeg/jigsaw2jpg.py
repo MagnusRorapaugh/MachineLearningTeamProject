@@ -22,8 +22,6 @@ normalize_scale: takes in a float percentage
 def cut_image(image, set_width, normalized_size):
 	# 1. get mask
 	image = np.copy(image) # prevents read-only error
-	plt.imshow(image)
-	plt.show()
 	avg_color = image[0].mean(axis=0)
 	#rescale full image
 	dimensions = image.shape
@@ -36,11 +34,7 @@ def cut_image(image, set_width, normalized_size):
 		height = int(height * ratio)
 
 	image = normalize(image, set_width, height)
-<<<<<<< HEAD
 	mask = flood_fill(image)
-=======
-	mask, avg_color = flood_fill(image)
->>>>>>> 682a22f9722a83b57ffb14aa1596c43f54da8337
 
 
 	 # 2. get continuous pieces
@@ -50,13 +44,8 @@ def cut_image(image, set_width, normalized_size):
 	for i in range(1, number_of_blobs):
 		# 2a. find a true piece
 		points = np.argwhere(blobs == i)
-<<<<<<< HEAD
-		#somewhat arbitrary method to remove small blobs
-		if points.shape[0] < set_width / 2: #This might not work depending on how you initially normalize the image, you might need to lower it
-=======
 		# somewhat arbitrary method to remove small blobs
 		if points.shape[0] < set_width / 2:
->>>>>>> 682a22f9722a83b57ffb14aa1596c43f54da8337
 			continue
 		# create piece object and save it
 		piece = Piece(points)
@@ -66,23 +55,14 @@ def cut_image(image, set_width, normalized_size):
 		max_range = max(x_range, y_range)
 		if square_size < max_range:
 			square_size = max_range
-<<<<<<< HEAD
 
-=======
-	
->>>>>>> 682a22f9722a83b57ffb14aa1596c43f54da8337
 	avg_color = avg_color.astype(int)
 	# 2c. collect continuous piece
 	for piece in pieces:
 		piece.gather_pixel_data(image, square_size, avg_color)
 		# 2d. normalize size of all pieces
 		piece.pixel_data = normalize(piece.pixel_data, normalized_size, normalized_size)
-<<<<<<< HEAD
 
-	#return blob_array
-=======
-		
->>>>>>> 682a22f9722a83b57ffb14aa1596c43f54da8337
 	return pieces
 
 
@@ -135,8 +115,6 @@ def flood_fill(matrix):
 					if visited[n[0]][n[1]] == False :
 						visited[n[0]][n[1]] = True
 						queue.append((n[0], n[1], prev_color))
-	plt.imshow(mask)
-	plt.show()
 	return mask
 
 
@@ -159,29 +137,6 @@ def normalize(photo, output_width, output_height):
 
 
 '''
-<<<<<<< HEAD
-Finally
-'''
-
-image = get_image("puzwhite.jpg")
-pieces = cut_image(image, 500, 40)
-
-# image = np.copy(get_image("puzwhite.jpg"))
-# #blob_info = cut_image(image, 500, 40)
-# #print(blob_info)
-#
-# plt.imshow(mask)
-# plt.show()
-#
-# image[mask] = [255,150,255]
-# plt.imshow(image)
-# plt.show()
-
-'''
-
-
-=======
->>>>>>> 682a22f9722a83b57ffb14aa1596c43f54da8337
 To test flood_fill
 '''
 #image = get_image("puzwhite.jpg")
