@@ -22,6 +22,8 @@ normalize_scale: takes in a float percentage
 def cut_image(image, set_width, normalized_size):
 	# 1. get mask
 	image = np.copy(image) # prevents read-only error
+	plt.imshow(image)
+	plt.show()
 	avg_color = image[0].mean(axis=0)
 	#rescale full image
 	dimensions = image.shape
@@ -34,43 +36,37 @@ def cut_image(image, set_width, normalized_size):
 		height = int(height * ratio)
 
 	image = normalize(image, set_width, height)
-	print("height")
-	print(height)
-	print("width")
-	print(set_width)
-	mask, avg_color = flood_fill(image)
+	mask = flood_fill(image)
 
 
 	 # 2. get continuous pieces
 	blobs, number_of_blobs = ndimage.label(~mask)
-	blob_array = []
 	pieces = []
 	square_size = 0
 	for i in range(1, number_of_blobs):
 		# 2a. find a true piece
 		points = np.argwhere(blobs == i)
-		if points.shape[0] > 500 :
-			blob_array.append(points.shape[0])
-		# somewhat arbitrary method to remove small blobs
-	# 	if points.shape[0] < 3000:
-	# 		continue
-	# 	# create piece object and save it
-	# 	piece = Piece(points)
-	# 	pieces.append(piece)
-	# 	# 2b. find size of minimum rectangle to contain continuous piece
-	# 	x_range, y_range = piece.get_xy_range()
-	# 	max_range = max(x_range, y_range)
-	# 	if square_size < max_range:
-	# 		square_size = max_range
-	#
-	# avg_color = avg_color.astype(int)
-	# # 2c. collect continuous piece
-	# for piece in pieces:
-	# 	piece.gather_pixel_data(image, square_size, avg_color)
-	# 	# 2d. normalize size of all pieces
-	# 	piece.pixel_data = normalize(piece.pixel_data, normalized_size, normalized_size)
+		#somewhat arbitrary method to remove small blobs
+		if points.shape[0] < set_width / 2: #This might not work depending on how you initially normalize the image, you might need to lower it
+			continue
+		# create piece object and save it
+		piece = Piece(points)
+		pieces.append(piece)
+		# 2b. find size of minimum rectangle to contain continuous piece
+		x_range, y_range = piece.get_xy_range()
+		max_range = max(x_range, y_range)
+		if square_size < max_range:
+			square_size = max_range
 
-	return blob_array
+	avg_color = avg_color.astype(int)
+	# 2c. collect continuous piece
+	for piece in pieces:
+		piece.gather_pixel_data(image, square_size, avg_color)
+		# 2d. normalize size of all pieces
+		piece.pixel_data = normalize(piece.pixel_data, normalized_size, normalized_size)
+
+	#return blob_array
+	return pieces
 
 
 '''
@@ -98,12 +94,12 @@ def flood_fill(matrix):
 		prev_color = current_tuple[2]
 
 		#set COLOR_RANGE
-		max = prev_color + COLOR_RANGE #NEED TO UPDATE START COLOR WITHIN THE LOOP
-		min = prev_color - COLOR_RANGE
+		max_color = prev_color + COLOR_RANGE #NEED TO UPDATE START COLOR WITHIN THE LOOP
+		min_color = prev_color - COLOR_RANGE
 
 		visited[x][y] = True
 
-		if not (np.all(min<matrix[x][y]) and np.all(matrix[x][y]<max)):
+		if not (np.all(min_color<matrix[x][y]) and np.all(matrix[x][y]<max_color)):
 			#print("color not approved")
 			pass
 
@@ -113,7 +109,7 @@ def flood_fill(matrix):
 			mask[x][y] = True #LABELS BACKGROUND AS TRUE
 			prev_color = matrix[x][y] #UPDATING PREVIOUS COLOR
 			# get neighboring pixels and call on those
-			neighbors = [(x-1,y),(x+1,y),(x-1,y-1),(x+1,y+1),(x-1,y+1),(x+1,y-1),(x,y-1),(x,y+1)]
+			#neighbors = [(x-1,y),(x+1,y),(x-1,y-1),(x+1,y+1),(x-1,y+1),(x+1,y-1),(x,y-1),(x,y+1)]
 			neighbors = [(x-1,y),(x+1,y),(x,y-1),(x,y+1)]
 			# call on each neighbor
 			for n in neighbors:
@@ -122,8 +118,9 @@ def flood_fill(matrix):
 					if visited[n[0]][n[1]] == False :
 						visited[n[0]][n[1]] = True
 						queue.append((n[0], n[1], prev_color))
-	#print(mask.shape)
-	return mask, prev_color
+	plt.imshow(mask)
+	plt.show()
+	return mask
 
 
 
@@ -148,30 +145,31 @@ def normalize(photo, output_width, output_height):
 Finally
 '''
 
-image = np.copy(get_image("puzwhite.jpg"))
-blob_info = cut_image(image, 500, 40)
-print(blob_info)
-'''
-plt.imshow(mask)
-plt.show()
+image = get_image("puzwhite.jpg")
+pieces = cut_image(image, 500, 40)
 
-image[mask] = [255,150,255]
-plt.imshow(image)
-plt.show()
-
-'''
-
-
-
-
-'''
-To test flood_fill
-'''
-# image = get_image("puzzle3.jpg")
-# mask = flood_fill(image)
+# image = np.copy(get_image("puzwhite.jpg"))
+# #blob_info = cut_image(image, 500, 40)
+# #print(blob_info)
 #
 # plt.imshow(mask)
 # plt.show()
+#
+# image[mask] = [255,150,255]
+# plt.imshow(image)
+# plt.show()
+
+'''
+
+
+To test flood_fill
+'''
+#image = get_image("puzwhite.jpg")
+
+#mask = flood_fill(image)
+#
+#plt.imshow(mask)
+#plt.show()
 
 
 '''
