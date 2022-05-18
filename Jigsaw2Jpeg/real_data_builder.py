@@ -24,12 +24,10 @@ def jpg_to_np_dataset(infile, outfile, row_len, im_size):
 	# split image
 	pieces = cut_image(im, im_size)
 	# create empty array
-	data = np.zeros((1, row_len, int(len(pieces)/row_len), im_size, im_size, 3))
-	
-	for puzz_idx in range(data.shape[0]):
-		for row in range(data.shape[1]):
-			for col in range(data.shape[2]):
-				data[puzz_idx][row][col] = pieces[row * row_len + col].pixel_data
+	data = np.zeros((row_len, int(len(pieces)/row_len), im_size, im_size))
+	for row in range(data.shape[0]):
+		for col in range(data.shape[1]):
+			data[row][col] = pieces[row * row_len + col].pixel_data / 255
 	
 	print("Data shape:", data.shape)
 	# save file
@@ -37,9 +35,9 @@ def jpg_to_np_dataset(infile, outfile, row_len, im_size):
 
 def main():
 	inf = "puzzle.jpg"
-	outf = "datatime!"
+	outf = "puzzle.np"
 	print("Saving Data from %s to %s!" % (inf, outf))
-	jpg_to_np_dataset(inf, outf, 1, 200)
+	jpg_to_np_dataset(inf, outf, 1, 20)
 
 if __name__ == "__main__":
 	main()

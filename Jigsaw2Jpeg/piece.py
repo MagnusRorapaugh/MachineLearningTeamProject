@@ -15,7 +15,7 @@ class Piece:
 	The box is (roughly) centered on the piece
 	If the given size is not big enough, this function returns None.
 	'''
-	def get_box(self, size): # TODO
+	def get_box(self, size):
 		x_range, y_range = self.get_xy_range()
 		# return None if the box is too small
 		if size < x_range or size < y_range:
