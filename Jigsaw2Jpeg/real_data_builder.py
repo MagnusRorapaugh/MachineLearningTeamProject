@@ -29,7 +29,7 @@ def jpg_to_np_dataset(infile, outfile, im_size=20):
 		data[i] = pieces[i].pixel_data / 255
 	print("Data shape:", data.shape)
 	# save file
-	if outfile != None:
+	if not (outfile is None):
 		joblib.dump(data, outfile)
 	return data
 

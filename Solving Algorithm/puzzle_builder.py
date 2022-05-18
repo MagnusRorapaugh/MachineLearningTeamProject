@@ -1,20 +1,20 @@
-import joblib
-
-from MachineLearningTeamProject.Visualization.Visualizer import Visualizer
 import numpy as np
 import queue
 from piece import Piece
 import keras
 from MachineLearningTeamProject.Model.makePieceNoCSV import processImage
 from MachineLearningTeamProject.Model.labelMaker import labelMaker
+from MachineLearningTeamProject.Visualization.Visualizer import Visualizer
+from MachineLearningTeamProject.Jigsaw2Jpeg.real_data_builder import jpg_to_np_dataset
+import joblib
 
 class PuzzleBuilder:
 
     def __init__(self):
-
         # Generate array of pieces
         # puzzle_matrix = joblib.load("../Data/Processed_Data/allimages")
-        puzzle_matrix = processImage("../Visualization/1000.jpg", 100, 5, 20)
+        # puzzle_matrix = processImage("../Visualization/1000.jpg", 100, 5, 20)
+        puzzle_matrix = jpg_to_np_dataset("puzwhite.jpg", None, im_size=20)
         self.PUZZLE_WIDTH = 4
         self.PUZZLE_HEIGHT = 4
         self.PIECES = []
