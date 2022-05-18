@@ -11,6 +11,7 @@ import joblib
 class PuzzleBuilder:
 
     def __init__(self):
+
         # Generate array of pieces
         # puzzle_matrix = joblib.load("../Data/Processed_Data/allimages")
         # puzzle_matrix = processImage("../Visualization/1000.jpg", 100, 5, 20)
