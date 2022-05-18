@@ -34,7 +34,7 @@ def cut_image(image, set_width, normalized_size):
 		height = int(height * ratio)
 
 	image = normalize(image, set_width, height)
-	mask, avg_color = flood_fill(image)
+	mask = flood_fill(image)
 
 
 	 # 2. get continuous pieces
@@ -55,14 +55,14 @@ def cut_image(image, set_width, normalized_size):
 		max_range = max(x_range, y_range)
 		if square_size < max_range:
 			square_size = max_range
-	
+
 	avg_color = avg_color.astype(int)
 	# 2c. collect continuous piece
 	for piece in pieces:
 		piece.gather_pixel_data(image, square_size, avg_color)
 		# 2d. normalize size of all pieces
 		piece.pixel_data = normalize(piece.pixel_data, normalized_size, normalized_size)
-		
+
 	return pieces
 
 
@@ -91,12 +91,12 @@ def flood_fill(matrix):
 		prev_color = current_tuple[2]
 
 		#set COLOR_RANGE
-		max = prev_color + COLOR_RANGE #NEED TO UPDATE START COLOR WITHIN THE LOOP
-		min = prev_color - COLOR_RANGE
+		max_color = prev_color + COLOR_RANGE #NEED TO UPDATE START COLOR WITHIN THE LOOP
+		min_color = prev_color - COLOR_RANGE
 
 		visited[x][y] = True
 
-		if not (np.all(min<matrix[x][y]) and np.all(matrix[x][y]<max)):
+		if not (np.all(min_color<matrix[x][y]) and np.all(matrix[x][y]<max_color)):
 			#print("color not approved")
 			pass
 
@@ -106,7 +106,7 @@ def flood_fill(matrix):
 			mask[x][y] = True #LABELS BACKGROUND AS TRUE
 			prev_color = matrix[x][y] #UPDATING PREVIOUS COLOR
 			# get neighboring pixels and call on those
-			neighbors = [(x-1,y),(x+1,y),(x-1,y-1),(x+1,y+1),(x-1,y+1),(x+1,y-1),(x,y-1),(x,y+1)]
+			#neighbors = [(x-1,y),(x+1,y),(x-1,y-1),(x+1,y+1),(x-1,y+1),(x+1,y-1),(x,y-1),(x,y+1)]
 			neighbors = [(x-1,y),(x+1,y),(x,y-1),(x,y+1)]
 			# call on each neighbor
 			for n in neighbors:
@@ -115,8 +115,7 @@ def flood_fill(matrix):
 					if visited[n[0]][n[1]] == False :
 						visited[n[0]][n[1]] = True
 						queue.append((n[0], n[1], prev_color))
-	#print(mask.shape)
-	return mask, prev_color
+	return mask
 
 
 
@@ -140,11 +139,12 @@ def normalize(photo, output_width, output_height):
 '''
 To test flood_fill
 '''
-# image = get_image("puzzle3.jpg")
-# mask = flood_fill(image)
+#image = get_image("puzwhite.jpg")
+
+#mask = flood_fill(image)
 #
-# plt.imshow(mask)
-# plt.show()
+#plt.imshow(mask)
+#plt.show()
 
 
 '''
