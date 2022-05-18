@@ -1,0 +1,301 @@
+import numpy as np
+from PIL import Image
+import os
+import time as tm
+import random
+
+# for the edges, adds a buffer with no holes/nubs
+# tile = tile to add the buffer to
+# up = if buffer should be above the tile (if False, then below)
+# left = if buffer should be to the left of the tile (if False, then on right)
+def bufferEdge(tile, up, down, left, right, non_rgb, max_depth):
+    buffer = np.full((len(tile),max_depth,3),non_rgb)
+    if left:
+        tile = np.append((buffer), tile, axis=1)
+    if right:
+        tile = np.append((tile), buffer, axis=1)
+    buffer = np.full((max_depth,len(tile[0]),3),non_rgb)
+    if up:
+        tile = np.vstack((buffer, tile))
+    if down:
+        tile = np.vstack((tile, buffer))
+    return tile
+
+# adds a nob and a hole to the tiles going left/right. This is hideous, I hate it, and I can't be bothered to fix it
+# tile_L = tile on the left
+# tile_R = tile on the right
+# non_rgb = value to input as a non-pixel (the "color" in the hole, currently -1)
+# left = if the nub is pointing left (hole on the right piece)
+# returns the new left tile, new right tile
+def nobHoriz(tile_L, tile_R, non_rgb, left, max_depth):
+    if left:
+        # sets which piece has the nub and randomizes the height of the nob
+        max_width_o = 2
+        max_width_i = 2
+        depth_2 = random.randrange(max_depth)+1
+        depth_1 = random.randrange(depth_2)+1
+        depth_3 = random.randrange(depth_2)+1
+        width_1 = random.randrange(max_width_o)+1
+        width_2 = random.randrange(max_width_i)+1
+        width_3 = random.randrange(max_width_o)+1
+        space_before_1 = random.randrange(depth_1)
+        space_before_3 = random.randrange(depth_3)
+        topOfNub = int((len(tile_R[0])-1)/2+random.randrange(3))
+            
+        index = len(tile_L[0])-depth_1
+        buffer = np.full((len(tile_R),max_depth,3),non_rgb)
+        # create the nob
+        index_2 = 0
+        for i in range(width_1):
+            j = space_before_1
+            while j<depth_1:
+                buffer[topOfNub+index_2][j]=tile_L[topOfNub+index_2][len(tile_L[0])-j-1]
+                tile_L[topOfNub+index_2][len(tile_L[0])-j-1]=non_rgb
+                j+=1
+            index_2+=1
+        index=len(tile_L)-depth_2
+        for i in range(width_2):
+            for j in range(depth_2):
+                buffer[topOfNub+index_2][j]=tile_L[topOfNub+index_2][len(tile_L[0])-j-1]
+                tile_L[topOfNub+index_2][len(tile_L[0])-j-1]=non_rgb
+            index_2+=1
+        index=len(tile_L)-depth_3
+        for i in range(width_3):
+            j = space_before_3
+            while j<depth_3:
+                buffer[topOfNub+index_2][j]=tile_L[topOfNub+index_2][len(tile_L[0])-j-1]
+                tile_L[topOfNub+index_2][len(tile_L[0])-j-1]=non_rgb
+                j+=1
+            index_2+=1
+        # add the buffer and nob, return left tile and right tile
+        tile_R = np.append((np.fliplr(buffer)), tile_R, axis=1)
+        buffer = np.full((len(tile_L),max_depth,3),non_rgb)
+        tile_L = np.append((tile_L), buffer, axis=1)
+        return tile_L.astype(np.uint8), tile_R.astype(np.uint8)
+    else:
+        # sets which piece has the nub and randomizes the height of the nob
+        max_width_o = 2
+        max_width_i = 2
+        depth_2 = random.randrange(max_depth)+1
+        depth_1 = random.randrange(depth_2)+1
+        depth_3 = random.randrange(depth_2)+1
+        width_1 = random.randrange(max_width_o)+1
+        width_2 = random.randrange(max_width_i)+1
+        width_3 = random.randrange(max_width_o)+1
+        space_before_1 = random.randrange(depth_1)
+        space_before_3 = random.randrange(depth_3)
+        topOfNub = int((len(tile_R[0])-1)/2+random.randrange(3))
+    
+        buffer = np.full((len(tile_L),max_depth,3),non_rgb)
+        # create the nob
+        index_2 = 0
+        for i in range(width_1):
+            j = space_before_1
+            while j<depth_1:
+                buffer[topOfNub+index_2][j]=tile_R[topOfNub+index_2][j]
+                tile_R[topOfNub+index_2][j]=non_rgb
+                j+=1
+            index_2+=1
+        for i in range(width_2):
+            for j in range(depth_2):
+                buffer[topOfNub+index_2][j]=tile_R[topOfNub+index_2][j]
+                tile_R[topOfNub+index_2][j]=non_rgb
+            index_2+=1
+        for i in range(width_3):
+            j = space_before_3
+            while j<depth_3:
+                buffer[topOfNub+index_2][j]=tile_R[topOfNub+index_2][j]
+                tile_R[topOfNub+index_2][j]=non_rgb
+                j+=1
+            index_2+=1
+        # add the buffer and nob, return left tile and right tile
+        tile_L = np.append((tile_L), buffer, axis=1)
+        buffer = np.full((len(tile_R),max_depth,3),non_rgb)
+        tile_R = np.append((buffer), tile_R, axis=1)
+        return tile_L.astype(np.uint8), tile_R.astype(np.uint8)
+        
+
+# adds a nob and a hole to the tiles going up/down. Again, hideous
+# tile_A = tile above
+# tile_B = tile below
+# non_rgb = value to input as a non-pixel (the "color" in the hole, currently -1)
+# up = if the nub is pointing up (hole on the topmost piece)
+# returns the new top tile, new bottom tile
+def nobVert(tile_A, tile_B, non_rgb, up, max_depth):
+    if up:
+        # sets which piece has the nub and randomize the side to side of nub
+        max_width_o = 2
+        max_width_i = 2
+        depth_2 = random.randrange(max_depth)+1
+        depth_1 = random.randrange(depth_2)+1
+        depth_3 = random.randrange(depth_2)+1
+        width_1 = random.randrange(max_width_o)+1
+        width_2 = random.randrange(max_width_i)+1
+        width_3 = random.randrange(max_width_o)+1
+        space_before_1 = random.randrange(depth_1)
+        space_before_3 = random.randrange(depth_3)
+        leftOfNub = int((len(tile_A)-1)/2+random.randrange(3))
+
+        buffer = np.full((max_depth,len(tile_B[0]),3),non_rgb)
+        # create the nob
+        index_2 = 0
+        for i in range(width_1):
+            j = space_before_1
+            while j<depth_1:
+                buffer[j][leftOfNub+index_2]=tile_A[len(tile_A)-1-j][leftOfNub+index_2]
+                tile_A[len(tile_A)-1-j][leftOfNub+index_2]=non_rgb
+                j+=1
+            index_2+=1
+        for i in range(width_2):
+            for j in range(depth_2):
+                buffer[j][leftOfNub+index_2]=tile_A[len(tile_A)-1-j][leftOfNub+index_2]
+                tile_A[len(tile_A)-1-j][leftOfNub+index_2]=non_rgb
+            index_2+=1
+        for i in range(width_3):
+            j = space_before_3
+            while j<depth_3:
+                buffer[j][leftOfNub+index_2]=tile_A[len(tile_A)-1-j][leftOfNub+index_2]
+                tile_A[len(tile_A)-1-j][leftOfNub+index_2]=non_rgb
+                j+=1
+            index_2+=1
+        # add the buffer and nob, return top tile and bottom tile
+        tile_B = np.vstack((np.flipud(buffer), tile_B))
+        buffer = np.full((max_depth,len(tile_A[0]),3),non_rgb)
+        tile_A = np.vstack((tile_A, buffer))
+        return tile_A.astype(np.uint8),tile_B.astype(np.uint8)
+    else:
+        # sets which piece has the nub and randomize the side to side of nub
+        max_width_o = 2
+        max_width_i = 2
+        depth_2 = random.randrange(max_depth)+1
+        depth_1 = random.randrange(depth_2)+1
+        depth_3 = random.randrange(depth_2)+1
+        width_1 = random.randrange(max_width_o)+1
+        width_2 = random.randrange(max_width_i)+1
+        width_3 = random.randrange(max_width_o)+1
+        space_before_1 = random.randrange(depth_1)
+        space_before_3 = random.randrange(depth_3)
+        leftOfNub = int((len(tile_A)-1)/2+random.randrange(3))
+
+        buffer = np.full((max_depth,len(tile_A[0]),3),non_rgb)
+        # create the nob
+        index_2 = 0
+        for i in range(width_1):
+            j = space_before_1
+            while j<depth_1:
+                buffer[j][leftOfNub+index_2]=tile_B[j][leftOfNub+index_2]
+                tile_B[j][leftOfNub+index_2]=non_rgb
+                j+=1
+            index_2+=1
+        for i in range(width_2):
+            for j in range(depth_2):
+                buffer[j][leftOfNub+index_2]=tile_B[j][leftOfNub+index_2]
+                tile_B[j][leftOfNub+index_2]=non_rgb
+            index_2+=1
+        for i in range(width_3):
+            j = space_before_3
+            while j<depth_3:
+                buffer[j][leftOfNub+index_2]=tile_B[j][leftOfNub+index_2]
+                tile_B[j][leftOfNub+index_2]=non_rgb
+                j+=1
+            index_2+=1
+        # add the buffer and nob, return top tile and bottom tile
+        tile_A = np.vstack((tile_A, buffer))
+        buffer = np.full((max_depth,len(tile_B[0]),3),non_rgb)
+        tile_B = np.vstack((buffer, tile_B))
+        return tile_A.astype(np.uint8),tile_B.astype(np.uint8)
+    return
+        
+ 
+# creates all the side nobs/holes
+# tiles = origonal pieces, no buffer or pads
+# non_rgb = value for nonpixel color
+# returns the array of pieces with buffering/nobs/holes to the sides only
+def sideNobs(tiles, non_rgb, max_depth):
+    side_nub = np.full((len(tiles),len(tiles[0]),len(tiles[0][0]),len(tiles[0][0][0])+max_depth*2,3),-1)
+    i = 0
+    while i<len(tiles):
+        j = 0
+        while j<len(tiles[0]):
+            if j == 0:
+                temp = bufferEdge(tiles[i][j], False, False, True, False, non_rgb, max_depth)
+                side_nub[i][j],temp = nobHoriz(temp, tiles[i][j+1], non_rgb, bool(random.getrandbits(1)), max_depth)
+            elif j == len(tiles[0])-1:
+                side_nub[i][j] = bufferEdge(temp, False, False, False, True, non_rgb, max_depth)
+            else:
+                side_nub[i][j],temp = nobHoriz(temp, tiles[i][j+1], non_rgb, bool(random.getrandbits(1)), max_depth)
+            j+=1
+        i+=1
+    return side_nub.astype(np.uint8)
+
+# creates all the top nobs/holes
+# side_nub = pieces with side nobs/holes, buffers added to the sides
+# non_rgb = value for nonpixel color
+# returns the array of pieces with buffering/nobs/holes in all directions
+def topNobs(side_nub, non_rgb, max_depth):
+    pieces = np.full((len(side_nub),len(side_nub[0]),len(side_nub[0][0])+max_depth*2,len(side_nub[0][0][0]),3),-1)
+    j = 0
+    while j<len(side_nub[0]):
+        i = 0
+        while i<len(side_nub):
+            if i == 0:
+                temp = bufferEdge(side_nub[i][j], True, False, False, False, non_rgb, max_depth)
+                pieces[i][j],temp = nobVert(temp, side_nub[i+1][j], non_rgb, bool(random.getrandbits(1)), max_depth)
+            elif i == len(side_nub)-1:
+                pieces[i][j] = bufferEdge(temp, False, True, False, False, non_rgb, max_depth)
+            else:
+                pieces[i][j],temp = nobVert(temp, side_nub[i+1][j], non_rgb, bool(random.getrandbits(1)), max_depth)
+            i+=1
+        j+=1
+    return pieces.astype(np.uint8)    
+
+# trims the image to a certain size, with a certain number of pieces in a row, the returns a numpy array where [0][0] is a piece, and 
+# contains each pixel in the pieces rgb value. Recommend using a standardized value for dimensions_of_pixels and pieces_in_row so all 
+# pieces are the same size and square. dimensions_of_pixels=1000 and pieces_in_row=10 seems to work well, leaves each piece with 
+# 100x100 pixels (with 3 rgb values) in a puzzle with 100 pieces, 10x10.
+def processImage(name, dimensions_of_pixels_X, dimensions_of_pixels_Y, number_of_pieces_X, number_of_pieces_Y, pixels_per_piece, max_depth, non_rgb):
+    image = Image.open(name)
+    image = image.resize((dimensions_of_pixels_X,dimensions_of_pixels_Y))
+    arr = np.asarray(image)
+    tiles = np.full((number_of_pieces_Y, number_of_pieces_X,pixels_per_piece,pixels_per_piece,3),0)
+    a = np.split(arr,number_of_pieces_Y,axis=0) #splits image into the appropriately shaped rows
+    a = np.array(a)
+    for i in range(len(a)):
+        tiles[i]=np.split(a[i],number_of_pieces_X,axis=1) #splits and saves the rows into appropriately shaped columns
+    side_pieces = sideNobs(tiles, non_rgb, max_depth)
+    pieces = topNobs(side_pieces, non_rgb, max_depth)
+    return pieces.astype(np.uint8) #must be type uint8 to show image
+
+# runs the methods to gather all the data to train on, for however many sample there are. Make sure the location of the images is in the same 
+# place as this program so os.listdir() can grab it. Returns nothing as all puzzle pieces are stored in a directory.
+def getSamples():
+    max_depth = 2
+    non_rgb = -1
+    final_number_of_pixels_per_piece = 20
+    number_of_pieces_X = 4 
+    number_of_pieces_Y = 6
+    pixels_to_test_on = 20
+    pixels_per_piece = pixels_to_test_on-max_depth*2
+    dimensions_of_pixels_X = (pixels_per_piece)*number_of_pieces_X
+    dimensions_of_pixels_Y = (pixels_per_piece)*number_of_pieces_Y
+    
+    path = "Sample_Images/"
+    files = os.listdir(path)
+    for i in files:
+        if ".jpeg" not in i and ".jpg" not in i:
+            files.remove(i)
+    all_images = np.full((len(files), number_of_pieces_X, number_of_pieces_Y, final_number_of_pixels_per_piece, final_number_of_pixels_per_piece, 3), 0)
+    # runs all the images and saves them, this is about 3000 images, so will take a few minutes
+    for i in range(len(files)):
+        tiles = processImage(path + files[i], dimensions_of_pixels_X, dimensions_of_pixels_Y, number_of_pieces_X, number_of_pieces_Y, pixels_per_piece, max_depth, non_rgb)
+        for j in range(len(tiles)):
+            for k in range(len(tiles[0])):
+                image = Image.fromarray(tiles[j][k])
+                image=image.resize((final_number_of_pixels_per_piece,final_number_of_pixels_per_piece))
+                all_images[i][k][j]=np.asarray(image)
+    return all_images.astype(np.uint8) #must be type uint8 to show image
+    
+start_time = tm.time()
+all_images = getSamples()
+t = tm.time()-start_time
+print("Took", int(t/60), "minutes and", "{:.2f}".format(t - 60*int(t/60)), "seconds to gather the training data")
