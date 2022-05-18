@@ -1,5 +1,5 @@
 import joblib
-from jigsaw2jpg import *
+from MachineLearningTeamProject.Jigsaw2Jpeg.jigsaw2jpg import *
 from matplotlib.image import imread
 
 '''

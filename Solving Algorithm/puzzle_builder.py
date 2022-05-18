@@ -1,10 +1,13 @@
 import numpy as np
 import queue
+
+from MachineLearningTeamProject.Model.makePieceNoCSV import processImage
 from piece import Piece
 import keras
 from MachineLearningTeamProject.Model.labelMaker import labelMaker
 from MachineLearningTeamProject.Visualization.Visualizer import Visualizer
 from MachineLearningTeamProject.Jigsaw2Jpeg.real_data_builder import jpg_to_np_dataset
+import matplotlib.pyplot as plt
 
 class PuzzleBuilder:
 
@@ -12,10 +15,10 @@ class PuzzleBuilder:
 
         # Generate array of pieces
         # puzzle_matrix = joblib.load("../Data/Processed_Data/allimages")
-        # puzzle_matrix = processImage("../Visualization/1000.jpg", 100, 5, 20)
-        puzzle_matrix = jpg_to_np_dataset("puzwhite.jpg", None, im_size=20)
-        self.PUZZLE_WIDTH = 4
-        self.PUZZLE_HEIGHT = 4
+        puzzle_matrix = processImage("../Visualization/img3.png", 100, 5, 20)
+        # puzzle_matrix = jpg_to_np_dataset("puzwhite.jpg", None, im_size=20)
+        self.PUZZLE_WIDTH = 5
+        self.PUZZLE_HEIGHT = 5
         self.PIECES = []
         self.vis = Visualizer()
         self.MODEL = keras.models.load_model('../Model/savedModel')
@@ -27,7 +30,7 @@ class PuzzleBuilder:
 
         self.PIECES_IN_PUZZLE_IDX = []  # keep track of pieces in puzzle we build
         self.pieces_to_check_idx = queue.PriorityQueue()  # keep track of pieces we need to check neighbors of
-        self.PUZZLE = np.empty((self.PUZZLE_WIDTH * 2, self.PUZZLE_HEIGHT * 2))  # keeps state of puzzle (where each # entry is the index in self.PIECES)
+        self.PUZZLE = np.empty((self.PUZZLE_WIDTH * 5, self.PUZZLE_HEIGHT * 5))  # keeps state of puzzle (where each # entry is the index in self.PIECES)
         self.CONFIDENCE = np.full_like(self.PUZZLE, -1)
         for i in range(len(self.PUZZLE)):
             for j in range(len(self.PUZZLE[0])):
@@ -35,7 +38,10 @@ class PuzzleBuilder:
 
     # Implemented by visualization team, called when a new piece is added to the puzzle
     def visualize_progress(self):
-        self.vis.update(self.get_rgb_state(), self.CONFIDENCE)
+        if len(self.PIECES_IN_PUZZLE_IDX) == len(self.PIECES):
+            self.vis.update(self.get_rgb_state(), self.CONFIDENCE)
+        # p = self.get_rgb_state()
+        # plt.imshow(p[0])
 
     # Neural network simulation
     def nn_compare_fake(self, piece_1, piece_2):
@@ -60,7 +66,7 @@ class PuzzleBuilder:
         for i in range(len(self.PIECES)):
             if i not in self.PIECES_IN_PUZZLE_IDX:
                 # Get results
-                results = self.nn_compare_fake(piece, self.PIECES[i])
+                results = self.nn_compare(piece, self.PIECES[i])
                 table.append(results)
                 table_idx.append(i)
         table = np.array(table)
@@ -100,7 +106,7 @@ class PuzzleBuilder:
         west_max_piece = self.PIECES[west_max_piece_idx]
 
         # If piece passes threshold, add to puzzle
-        threshold = 0.95
+        threshold = 0.7
         row_idx = popped_piece_row_idx
         column_idx = popped_piece_column_idx
         if north_max_probability > threshold:
@@ -142,9 +148,6 @@ class PuzzleBuilder:
             probability = pq_output[0]
             next_piece_puzzle_idx = pq_output[1]
             self.put_piece_neighbors(next_piece_puzzle_idx)
-            print(self.get_rgb_state())
-
-        print(self.PUZZLE)
 
     def get_rgb_state(self):
         # convert state to rgb

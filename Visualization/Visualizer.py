@@ -13,6 +13,7 @@ class Visualizer:
         self.num_pieces = None
         self.canvas = None
         self.render_dict = None
+        self.old_dict = None
         self.to_render = Queue()
         self.confidence = None
 
@@ -37,10 +38,11 @@ class Visualizer:
             temp = self.canvas.copy()
             self.to_render.put(temp)
 
+
     def render(self):
         while not self.to_render.empty():
-            time.sleep(1)
             img_to_show = self.to_render.get()
+            print(self.to_render.qsize())
             opencv_image = cv2.cvtColor(np.array(img_to_show), cv2.COLOR_RGB2BGR)
             cv2.imshow("image", opencv_image)
             k = cv2.waitKey(1000) & 0XFF
